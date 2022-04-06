@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "367313271277",
+    "project_id": "ketitik-18069",
+    "storage_bucket": "ketitik-18069.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:367313271277:android:976478f92d8d8a542d8fe4",
+        "android_client_info": {
+          "package_name": "com.app.ketitik.ketitik"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "367313271277-4slo4fv83usmqh4u29chr6jrs99a2iff.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.ketitik.ketitik",
+            "certificate_hash": "f031ed248a6d59505b080bb340271362bf81bdec"
+          }
+        },
+        {
+          "client_id": "367313271277-qugvus5mm2ls007ol1clni0lboeod1nm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkEOCFhUaf3RiaA0K0fdk8AHAZAi5eD7Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "367313271277-qugvus5mm2ls007ol1clni0lboeod1nm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
