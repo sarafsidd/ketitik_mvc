@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:ketitik/models/allnewsmodel.dart';
+import 'package:ketitik/models/newsdata.dart';
 import 'package:ketitik/screens/auth/binding/login_binding.dart';
 import 'package:ketitik/utility/app_route.dart';
 import 'package:ketitik/utility/colorss.dart';
@@ -19,6 +20,7 @@ void main() async {
   Hive.init(directory.path);
   Hive.registerAdapter(NewsAdapter());
   Hive.registerAdapter(NewsAllAdapter());
+  Hive.registerAdapter(NewsDataAdapter());
   runApp(const MyApp());
 }
 

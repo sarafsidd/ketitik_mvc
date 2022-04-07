@@ -58,7 +58,7 @@ class HomeController extends GetxController {
     // list.value = (await _apiService.getAllArticles(
     //     filter: "top", pageNumber: pageNumber.value.toString()))!;
     try {
-      final result = await InternetAddress.lookup('http://google.com');
+      final result = await InternetAddress.lookup('http://83.136.219.147/News/public/api/allnews_list');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         print('connected');
         list.value = (await _apiService.getAllArticles(
