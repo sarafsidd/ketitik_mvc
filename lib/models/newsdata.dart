@@ -36,7 +36,7 @@ class NewsData {
     "Data": List<dynamic>.from(data.map((x) => x.toJson())),
   };
 }
-
+@HiveType(typeId: 4,adapterName: "DataArticleAdapter")
 class DataArticle {
   DataArticle({
     required this.author,
@@ -49,15 +49,23 @@ class DataArticle {
     required this.id,
     required this.title,
   });
-
+  @HiveField(1)
   String? author;
+  @HiveField(2)
   String? source;
+  @HiveField(3)
   String? url;
+  @HiveField(4)
   String? image;
+  @HiveField(5)
   String? country;
+  @HiveField(6)
   String? category;
+  @HiveField(7)
   String? description;
+  @HiveField(8)
   int? id;
+  @HiveField(9)
   String? title;
 
   factory DataArticle.fromJson(Map<String, dynamic> json) => DataArticle(
@@ -83,4 +91,27 @@ class DataArticle {
     "id": id,
     "title": title,
   };
+
+  static Map<String, dynamic> toMap(DataArticle dataArticle) => {
+    "author": dataArticle.author,
+    "source": dataArticle.source,
+    "url": dataArticle.url,
+    "image": dataArticle.image,
+    "country": dataArticle.country,
+    "category": dataArticle.category,
+    "description": dataArticle.description,
+    "id": dataArticle.id,
+    "title": dataArticle.title,
+  };
+
+  static String encode(List<DataArticle> musics) => json.encode(
+    musics
+        .map<Map<String, dynamic>>((music) => DataArticle.toMap(music))
+        .toList(),
+  );
+
+  static List<DataArticle> decode(String musics) =>
+      (json.decode(musics) as List<dynamic>)
+          .map<DataArticle>((item) => DataArticle.fromJson(item))
+          .toList();
 }

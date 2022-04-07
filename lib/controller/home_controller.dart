@@ -1,10 +1,13 @@
 import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:ketitik/models/newsdata.dart';
 import 'package:ketitik/services/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/allnewsmodel.dart';
 import '../utility/prefrence_service.dart';
 
 class HomeController extends GetxController {
@@ -54,22 +57,21 @@ class HomeController extends GetxController {
 
   Future<List<DataArticle>> getTopStoriesData() async {
     resetData();
-
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     // list.value = (await _apiService.getAllArticles(
     //     filter: "top", pageNumber: pageNumber.value.toString()))!;
-    try {
-      final result = await InternetAddress.lookup('http://83.136.219.147/News/public/api/allnews_list');
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        print('connected');
-        list.value = (await _apiService.getAllArticles(
-            filter: "top", pageNumber: pageNumber.value.toString()))!;
-      }
-    } on SocketException catch (_) {
-      print('not connected');
-      var box = await Hive.openBox<List<DataArticle>>('NewsDataservice');
-      list.value = box.values.cast<DataArticle>().toList();
-    }
 
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+      // I am connected to a mobile network.
+      list.value = (await _apiService.getAllArticles(
+          filter: "top", pageNumber: pageNumber.value.toString()))!;
+    }else{
+      var box = await Hive.openBox<List<DataArticle>>('NewsDataservice');
+      final String? dataArtString = await prefs.getString('musics_key');
+      //list.value = box.values.cast<DataArticle>().toList();
+      list.value = DataArticle.decode(dataArtString!);
+    }
     pageNumber.value = pageNumber.value + 1;
 
     print("ListData Top $pageNumber ${list.value.length}");

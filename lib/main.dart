@@ -21,6 +21,7 @@ void main() async {
   Hive.registerAdapter(NewsAdapter());
   Hive.registerAdapter(NewsAllAdapter());
   Hive.registerAdapter(NewsDataAdapter());
+  Hive.registerAdapter(DataArticleAdapter());
   runApp(const MyApp());
 }
 

@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:ketitik/models/newsdata.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/allnewsmodel.dart';
 import '../models/category.dart';
@@ -188,6 +189,7 @@ class APIService {
     try {
       var response = null;
       var box = await Hive.openBox<List<DataArticle>>('NewsDataservice');
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
 
       response = await http.post(allnewsurls,
           headers: {},
@@ -198,6 +200,9 @@ class APIService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final news = newsDataFromJson(response.body);
         box.add(news.data);
+        final String encodedata = DataArticle.encode(news.data);
+        await prefs.setString('DataArt', encodedata);
+
         return news.data;
       } else {
         print("newsdataelse : ");
