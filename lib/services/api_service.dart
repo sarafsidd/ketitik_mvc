@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:ketitik/models/newsdata.dart';
 
+import '../models/allnewsmodel.dart';
 import '../models/category.dart';
 import '../models/news.dart';
 import '../models/privacymodel.dart';
@@ -185,6 +187,7 @@ class APIService {
       {required String filter, String? pageNumber}) async {
     try {
       var response = null;
+      var box = await Hive.openBox<List<DataArticle>>('NewsDataservice');
 
       response = await http.post(allnewsurls,
           headers: {},
@@ -194,7 +197,7 @@ class APIService {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final news = newsDataFromJson(response.body);
-
+        box.add(news.data);
         return news.data;
       } else {
         print("newsdataelse : ");

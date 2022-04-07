@@ -1,16 +1,24 @@
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:ketitik/models/allnewsmodel.dart';
 import 'package:ketitik/screens/auth/binding/login_binding.dart';
 import 'package:ketitik/utility/app_route.dart';
 import 'package:ketitik/utility/colorss.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await Hive.initFlutter();
+  Directory directory = await getApplicationDocumentsDirectory();
+  Hive.init(directory.path);
+  Hive.registerAdapter(NewsAdapter());
+  Hive.registerAdapter(NewsAllAdapter());
   runApp(const MyApp());
 }
 

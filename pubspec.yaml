@@ -61,6 +61,8 @@ dev_dependencies:
     sdk: flutter
 
   flutter_launcher_icons: ^0.9.0
+  hive_generator: ^1.1.2
+  build_runner: ^2.1.8
 
 flutter_icons:
   image_path: "assets/images/redketitik.png"

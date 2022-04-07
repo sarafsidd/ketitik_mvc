@@ -4,19 +4,24 @@
 
 import 'dart:convert';
 
+import 'package:hive/hive.dart';
+part 'newsdata.g.dart';
+
 NewsData newsDataFromJson(String str) => NewsData.fromJson(json.decode(str));
 
 String newsDataToJson(NewsData data) => json.encode(data.toJson());
-
+@HiveType(typeId: 3,adapterName: "NewsDataAdapter")
 class NewsData {
   NewsData({
     required this.success,
     required this.message,
     required this.data,
   });
-
+  @HiveField(0)
   bool success;
+  @HiveField(1)
   String message;
+  @HiveField(2)
   List<DataArticle> data;
 
   factory NewsData.fromJson(Map<String, dynamic> json) => NewsData(

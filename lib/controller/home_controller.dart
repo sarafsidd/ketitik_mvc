@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:ketitik/models/newsdata.dart';
 import 'package:ketitik/services/api_service.dart';
 
@@ -52,8 +55,20 @@ class HomeController extends GetxController {
   Future<List<DataArticle>> getTopStoriesData() async {
     resetData();
 
-    list.value = (await _apiService.getAllArticles(
-        filter: "top", pageNumber: pageNumber.value.toString()))!;
+    // list.value = (await _apiService.getAllArticles(
+    //     filter: "top", pageNumber: pageNumber.value.toString()))!;
+    try {
+      final result = await InternetAddress.lookup('http://google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+        list.value = (await _apiService.getAllArticles(
+            filter: "top", pageNumber: pageNumber.value.toString()))!;
+      }
+    } on SocketException catch (_) {
+      print('not connected');
+      var box = await Hive.openBox<List<DataArticle>>('NewsDataservice');
+      list.value = box.values.cast<DataArticle>().toList();
+    }
 
     pageNumber.value = pageNumber.value + 1;
 
