@@ -31,3 +31,8 @@ extension HexColor on Color {
       '${green.toRadixString(16).padLeft(2, '0')}'
       '${blue.toRadixString(16).padLeft(2, '0')}';
 }
+ extension ListFromMap<Key, Element> on Map<Key, Element> {
+  List<T> toList<T>(
+      T Function(MapEntry<Key, Element> entry) getElement) =>
+      entries.map(getElement).toList();
+}

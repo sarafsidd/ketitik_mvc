@@ -14,11 +14,35 @@
       },
       "oauth_client": [
         {
-          "client_id": "367313271277-4slo4fv83usmqh4u29chr6jrs99a2iff.apps.googleusercontent.com",
+          "client_id": "367313271277-6627uitlrbmbfegivlr774rm9ru4qvju.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.app.ketitik.ketitik",
-            "certificate_hash": "f031ed248a6d59505b080bb340271362bf81bdec"
+            "certificate_hash": "54cc9ac71cefdd454793f9102daaa9f13b423ad3"
+          }
+        },
+        {
+          "client_id": "367313271277-mo6h8upbiv4v8llctt5i19hukqqv26gi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.ketitik.ketitik",
+            "certificate_hash": "540d5ee974d88e3e8687a1e7693b561c48df273f"
+          }
+        },
+        {
+          "client_id": "367313271277-rgg1oshlb83006g9k0ktsuh1esb801qq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.ketitik.ketitik",
+            "certificate_hash": "f87a91e8d50c1de00f272395850a6a8c110f63c4"
+          }
+        },
+        {
+          "client_id": "367313271277-tkqc1p1hbi4e1ptuhlmc8valdjs7fako.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.ketitik.ketitik",
+            "certificate_hash": "36b5042c1573f44bc9fa6d847928b685becef009"
           }
         },
         {
@@ -37,6 +61,13 @@
             {
               "client_id": "367313271277-qugvus5mm2ls007ol1clni0lboeod1nm.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "367313271277-qi5g9646opia7jr31cpa09c23njv6rk9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.app.ketitiknews.untitled"
+              }
             }
           ]
         }

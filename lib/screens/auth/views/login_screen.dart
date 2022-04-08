@@ -89,20 +89,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
               ),
-              /* Padding(
-                padding: const EdgeInsets.only(left: 13.0, right: 13.0),
-                child: SignInButton(
-                  Buttons.Facebook,
-                  elevation: 6.0,
-                  text: "Sign in with Facebook",
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  onPressed: () {
-                    controller.facebookLogin();
-                  },
-                ),
-              ),
+              //  Padding(
+              //   padding: const EdgeInsets.only(left: 13.0, right: 13.0),
+              //   child: SignInButton(
+              //     Buttons.Facebook,
+              //     elevation: 6.0,
+              //     text: "Sign in with Facebook",
+              //     padding: const EdgeInsets.symmetric(vertical: 2),
+              //     shape: RoundedRectangleBorder(
+              //         borderRadius: BorderRadius.circular(15)),
+              //     onPressed: () {
+              //       controller.facebookLogin();
+              //     },
+              //   ),
+              // ),
               Padding(
                 padding: const EdgeInsets.only(left: 13.0, right: 13.0),
                 child: SignInButton(
@@ -113,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(15)),
                   onPressed: onLogin,
                 ),
-              ),*/
+              ),
               const SizedBox(
                 height: 15,
               ),

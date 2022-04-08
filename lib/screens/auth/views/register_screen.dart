@@ -70,87 +70,89 @@ class _RegisterScreenState extends State<RegisterScreen> {
     print("Name :${widget.name}");
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
-    return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
-      body: SingleChildScrollView(
-        child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            height: height,
-            width: width,
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(
-                    height: height * 0.4,
-                    child: Image.asset("assets/images/kitifull.png"),
-                  ),
-                  CustomTextField(
-                    hintText: 'Name',
-                    controller: _nameController,
-                    icon: const Icon(Icons.person),
-                    keyboardType: TextInputType.name,
-                    validation: (value) {
-                      if (value!.isEmpty) {
-                        return "This Field is Required";
-                      }
-                      return null;
-                    },
-                  ),
-                  CustomTextField(
-                    hintText: 'Email',
-                    controller: _emailController,
-                    icon: const Icon(Icons.email),
-                    keyboardType: TextInputType.emailAddress,
-                    validation: (value) {
-                      if (value!.isEmpty) {
-                        return "This Field is Required";
-                      }
-                      return null;
-                    },
-                  ),
-                  CustomTextField(
-                    hintText: 'Social ID',
-                    controller: _socialController,
-                    icon: const Icon(Icons.privacy_tip_outlined),
-                    keyboardType: TextInputType.number,
-                    validation: (value) {
-                      if (value!.isEmpty) {
-                        return "This Field is Required";
-                      }
-                      return null;
-                    },
-                  ),
-                  CustomTextField(
-                    hintText: 'Contact Number',
-                    controller: _contactController,
-                    icon: const Icon(Icons.phone),
-                    keyboardType: TextInputType.number,
-                    validation: (value) {
-                      if (value!.isEmpty) {
-                        return "This Field is Required";
-                      }
-                      return null;
-                    },
-                  ),
-                  const Spacer(),
-                  ElevatedButton(
-                    child: const Text('Register'),
-                    style: ElevatedButton.styleFrom(
-                      elevation: 6.0,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      onPrimary: MyColors.themeColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      primary: Colors.black87,
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Theme.of(context).primaryColor,
+        body: SingleChildScrollView(
+          child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              height: height,
+              width: width,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SizedBox(
+                      height: height * 0.4,
+                      child: Image.asset("assets/images/ketitik.png"),
                     ),
-                    onPressed: onSubmit,
-                  )
-                ],
-              ),
-            )),
+                    CustomTextField(
+                      hintText: 'Name',
+                      controller: _nameController,
+                      icon: const Icon(Icons.person),
+                      keyboardType: TextInputType.name,
+                      validation: (value) {
+                        if (value!.isEmpty) {
+                          return "This Field is Required";
+                        }
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      hintText: 'Email',
+                      controller: _emailController,
+                      icon: const Icon(Icons.email),
+                      keyboardType: TextInputType.emailAddress,
+                      validation: (value) {
+                        if (value!.isEmpty) {
+                          return "This Field is Required";
+                        }
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      hintText: 'Social ID',
+                      controller: _socialController,
+                      icon: const Icon(Icons.privacy_tip_outlined),
+                      keyboardType: TextInputType.number,
+                      validation: (value) {
+                        if (value!.isEmpty) {
+                          return "This Field is Required";
+                        }
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      hintText: 'Contact Number',
+                      controller: _contactController,
+                      icon: const Icon(Icons.phone),
+                      keyboardType: TextInputType.number,
+                      validation: (value) {
+                        if (value!.isEmpty) {
+                          return "This Field is Required";
+                        }
+                        return null;
+                      },
+                    ),
+                    const Spacer(),
+                    ElevatedButton(
+                      child: const Text('Register'),
+                      style: ElevatedButton.styleFrom(
+                        elevation: 6.0,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        onPrimary: MyColors.themeColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        primary: Colors.black87,
+                      ),
+                      onPressed: onSubmit,
+                    )
+                  ],
+                ),
+              )),
+        ),
       ),
     );
   }

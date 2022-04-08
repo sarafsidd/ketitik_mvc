@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:api_cache_manager/models/cache_db_model.dart';
+import 'package:api_cache_manager/utils/cache_manager.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:ketitik/models/newsdata.dart';
@@ -81,6 +84,178 @@ class APIService {
       return "";
     }
   }
+  //cached allnews data
+  Future<List<DataArticle>?> getAllArticles(  {required String filter, String? pageNumber}) async {
+    try {
+      var isCacheExist =
+      await APICacheManager().isAPICacheKeyExist("API_Categories");
+      print("pageNumber---->$pageNumber");
+
+      if (!isCacheExist) {
+        var response = await http.post(allnewsurls,
+            headers: {},
+            body: {"page": pageNumber.toString(),"filter": filter}).catchError((err)async {
+
+          print('newsdata  : $err');
+        });
+        print("URl hit");
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          APICacheDBModel cacheDBModel =
+          APICacheDBModel(key: "API_Categories", syncData: response.body);
+          await APICacheManager().addCacheData(cacheDBModel);
+          final news = newsDataFromJson(response.body);
+
+          return news.data;
+        } else {
+          print("newsdataelse : ");
+          return [];
+        }
+      } else {
+        var cacheData = await APICacheManager().getCacheData("API_Categories");
+        print("chace hit");
+        final news = newsDataFromJson(cacheData.syncData);
+
+        return news.data;
+      }
+    } catch (e) {
+      print("Error ${e.toString()}");
+      var cacheData = await APICacheManager().getCacheData("API_Categories");
+      print("chace hit");
+      final news = newsDataFromJson(cacheData.syncData);
+
+      return news.data;
+      return [];
+    }
+  }
+  //cached top Stories data
+  Future<List<DataArticle>?> getTopArticles(  {required String filter, String? pageNumber}) async {
+    try {
+      var isCacheExist =
+      await APICacheManager().isAPICacheKeyExist("Top_Stories");
+      print("pageNumber---->$pageNumber");
+
+      if (!isCacheExist) {
+        var response = await http.post(allnewsurls,
+            headers: {},
+            body: {"page": pageNumber.toString(),"filter": "top"}).catchError((err)async {
+
+          print('newsdata  : $err');
+        });
+        print("URl hit");
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          APICacheDBModel cacheDBModel =
+          APICacheDBModel(key: "Top_Stories", syncData: response.body);
+          await APICacheManager().addCacheData(cacheDBModel);
+          final news = newsDataFromJson(response.body);
+
+          return news.data;
+        } else {
+          print("newsdataelse : ");
+          return [];
+        }
+      } else {
+        var cacheData = await APICacheManager().getCacheData("Top_Stories");
+        print("chace hit");
+        final news = newsDataFromJson(cacheData.syncData);
+
+        return news.data;
+      }
+    } catch (e) {
+      print("Error ${e.toString()}");
+      var cacheData = await APICacheManager().getCacheData("Top_Stories");
+      print("chace hit");
+      final news = newsDataFromJson(cacheData.syncData);
+
+      return news.data;
+      return [];
+    }
+  }
+  //cached trending data
+  Future<List<DataArticle>?> gettrendingArticles(  {required String filter, String? pageNumber}) async {
+    try {
+      var isCacheExist =
+      await APICacheManager().isAPICacheKeyExist("Trending_Stories");
+      print("pageNumber---->$pageNumber");
+
+      if (!isCacheExist) {
+        var response = await http.post(allnewsurls,
+            headers: {},
+            body: {"page": pageNumber.toString(),"filter": "top"}).catchError((err)async {
+
+          print('newsdata  : $err');
+        });
+        print("URl hit");
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          APICacheDBModel cacheDBModel =
+          APICacheDBModel(key: "Trending_Stories", syncData: response.body);
+          await APICacheManager().addCacheData(cacheDBModel);
+          final news = newsDataFromJson(response.body);
+
+          return news.data;
+        } else {
+          print("newsdataelse : ");
+          return [];
+        }
+      } else {
+        var cacheData = await APICacheManager().getCacheData("Trending_Stories");
+        print("chace hit");
+        final news = newsDataFromJson(cacheData.syncData);
+
+        return news.data;
+      }
+    } catch (e) {
+      print("Error ${e.toString()}");
+      var cacheData = await APICacheManager().getCacheData("Trending_Stories");
+      print("chace hit");
+      final news = newsDataFromJson(cacheData.syncData);
+
+      return news.data;
+      return [];
+    }
+  }
+  Future<List<DataArticle>?> getFeedArticles(  {required String filter, String? pageNumber, String? tokenAuth}) async {
+    try {
+      var isCacheExist =
+      await APICacheManager().isAPICacheKeyExist("Feed_Stories");
+      print("pageNumber---->$pageNumber");
+
+      if (!isCacheExist) {
+        var response = await http.post(allnewsurls,
+            headers: {},
+            body: {"page": pageNumber.toString(),"filter": "feeds"}).catchError((err)async {
+
+          print('newsdata  : $err');
+        });
+        print("URl hit");
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          APICacheDBModel cacheDBModel =
+          APICacheDBModel(key: "Feed_Stories", syncData: response.body);
+          await APICacheManager().addCacheData(cacheDBModel);
+          final news = newsDataFromJson(response.body);
+
+          return news.data;
+        } else {
+          print("newsdataelse : ");
+          return [];
+        }
+      } else {
+        var cacheData = await APICacheManager().getCacheData("Feed_Stories");
+        print("chace hit");
+        final news = newsDataFromJson(cacheData.syncData);
+
+        return news.data;
+      }
+    } catch (e) {
+      print("Error ${e.toString()}");
+      var cacheData = await APICacheManager().getCacheData("Feed_Stories");
+      print("chace hit");
+      final news = newsDataFromJson(cacheData.syncData);
+
+      return news.data;
+      return [];
+    }
+  }
+
 
   Future<String> getStaticPrivacy() async {
     try {
@@ -184,35 +359,51 @@ class APIService {
     }
   }
 
-  Future<List<DataArticle>?> getAllArticles(
-      {required String filter, String? pageNumber}) async {
-    try {
-      var response = null;
-      var box = await Hive.openBox<List<DataArticle>>('NewsDataservice');
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
+  // Future<List<DataArticle>?> getAllArticles(
+  //     {required String filter, String? pageNumber}) async {
+  //   try {
+  //     var response = null;
+  //     var connectivityResult = await (Connectivity().checkConnectivity());
+  //     if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+  //       // I am connected to a mobile network.
+  //       response = await http.post(allnewsurls,
+  //           headers: {},
+  //           body: {"page": pageNumber, "filter": filter}).catchError((err) {
+  //         print('newsdata  : $err');
+  //       });
+  //
+  //       if (response.statusCode == 200 || response.statusCode == 201) {
+  //         final news = newsDataFromJson(response.body);
+  //
+  //         return news.data;
+  //       } else {
+  //         print("newsdataelse : ");
+  //          return [];
+  //       }
+  //       // box.p;
+  //     }else{
+  //        List<DataArticle> offlinrRes =  await boxFetch('NewsDataservice');
+  //        print("listofdata : ${offlinrRes.length}");
+  //      return offlinrRes;
+  //     }
+  //
+  //
+  //   } catch (e) {
+  //     print("Error ${e.toString()}");
+  //     return [];
+  //   }
+  // }
+  Future<List<DataArticle>> boxFetch(String name)async{
+    var box = await Hive.openBox(name);
+    var listdata = box.toMap();
+    print("offline : $listdata");
+    List<DataArticle> dataList= [];
+    listdata.forEach((k,v) => dataList.add(v as DataArticle));
 
-      response = await http.post(allnewsurls,
-          headers: {},
-          body: {"page": pageNumber, "filter": filter}).catchError((err) {
-        print('newsdata  : $err');
-      });
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final news = newsDataFromJson(response.body);
-        box.add(news.data);
-        final String encodedata = DataArticle.encode(news.data);
-        await prefs.setString('DataArt', encodedata);
-
-        return news.data;
-      } else {
-        print("newsdataelse : ");
-        return [];
-      }
-    } catch (e) {
-      print("Error ${e.toString()}");
-      return [];
-    }
+    return dataList;
   }
+
+
 
   getUserToken() {
     prefrenceService.getToken().then((value) => {userToken = value!});
@@ -309,3 +500,4 @@ class APIService {
     }
   }
 }
+

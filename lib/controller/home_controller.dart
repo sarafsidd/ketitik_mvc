@@ -46,7 +46,7 @@ class HomeController extends GetxController {
   Future<List<DataArticle>> getMyFeedData() async {
     resetData();
 
-    list.value = (await _apiService.getFeedsData(
+    list.value = (await _apiService.getFeedArticles(
         filter: "feeds",
         pageNumber: pageNumber.value.toString(),
         tokenAuth: userToken.value))!;
@@ -55,23 +55,30 @@ class HomeController extends GetxController {
     return list.value;
   }
 
+  void boxStore(String name)async{
+    var box = await Hive.openBox(name);
+    for(int i =0;i<list.value.length;i++ ){
+      box.put(i, list.value[i]);
+     print(list.value[i].title);
+    }
+  }
+
+
+
   Future<List<DataArticle>> getTopStoriesData() async {
     resetData();
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    // list.value = (await _apiService.getAllArticles(
-    //     filter: "top", pageNumber: pageNumber.value.toString()))!;
+    //final SharedPreferences prefs = await SharedPreferences.getInstance();
+    list.value = (await _apiService.getTopArticles(
+        filter: "top", pageNumber: pageNumber.value.toString()))!;
 
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
-      // I am connected to a mobile network.
-      list.value = (await _apiService.getAllArticles(
-          filter: "top", pageNumber: pageNumber.value.toString()))!;
-    }else{
-      var box = await Hive.openBox<List<DataArticle>>('NewsDataservice');
-      final String? dataArtString = await prefs.getString('musics_key');
-      //list.value = box.values.cast<DataArticle>().toList();
-      list.value = DataArticle.decode(dataArtString!);
-    }
+    // var connectivityResult = await (Connectivity().checkConnectivity());
+    // if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+    //   // I am connected to a mobile network.
+    //   list.value = (await _apiService.getAllArticles(
+    //       filter: "top", pageNumber: pageNumber.value.toString()))!;
+    //  // boxStore('NewsDataservice');
+    //  // box.p;
+    // }
     pageNumber.value = pageNumber.value + 1;
 
     print("ListData Top $pageNumber ${list.value.length}");
@@ -82,7 +89,7 @@ class HomeController extends GetxController {
   Future<List<DataArticle>> getTrendingData() async {
     resetData();
 
-    list.value = (await _apiService.getAllArticles(
+    list.value = (await _apiService. gettrendingArticles(
         filter: "trending", pageNumber: pageNumber.value.toString()))!;
 
     pageNumber.value = pageNumber.value + 1;
