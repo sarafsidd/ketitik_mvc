@@ -142,14 +142,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
   onLogin() async {
     final twitterLogin = TwitterLogin(
-        apiKey: SocialCrendentials.apiKeyTwitter,
-        apiSecretKey: SocialCrendentials.apiSecretKey,
-        redirectURI: SocialCrendentials.redirectURI);
+        apiKey: SocialCrendentials().apiKeyTwitter,
+        apiSecretKey: SocialCrendentials().apiSecretKey,
+        redirectURI: SocialCrendentials().redirectURI);
     await twitterLogin.login().then((value) async {
       final twitterAuthCredentials = TwitterAuthProvider.credential(
           accessToken: value.authToken.toString(),
           secret: value.authTokenSecret.toString());
+      print(value.authToken.toString());
       await FirebaseAuth.instance.signInWithCredential(twitterAuthCredentials);
-    });
+    },
+    );
+
   }
 }
