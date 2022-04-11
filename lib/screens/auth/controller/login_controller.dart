@@ -173,7 +173,7 @@ class LoginController extends GetxController {
   }
 
   void facebookLogin() async {
-    LoginResult result = await FacebookAuth.instance.login();
+    LoginResult result = await FacebookAuth.instance.login(permissions: ["email"]);
     switch (result.status) {
       case LoginStatus.success:
         final AuthCredential fbCredentials =
@@ -181,8 +181,8 @@ class LoginController extends GetxController {
         final userCred = await Get.find<AuthController>()
             .firebaseAuth
             .signInWithCredential(fbCredentials);
-        // user = userCred.user;
-        // print("User : $user");
+        var user = userCred.user;
+        print("User : $user");
         break;
       case LoginStatus.cancelled:
         break;

@@ -1,16 +1,24 @@
 // ignore_for_file: avoid_print
 
+import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:ketitik/models/newsdata.dart';
 import 'package:ketitik/screens/searchscreen/views/search_page.dart';
 import 'package:ketitik/services/api_service.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:flutter_social_content_share/flutter_social_content_share.dart';
+
 
 import '../../../controller/home_controller.dart';
 import '../../../utility/colorss.dart';
@@ -33,9 +41,11 @@ class HomePageState extends State<MyHomePage> {
   var newsId = "";
   var articleCurrent;
   var page_number = 1;
+  late Uint8List _imageFile;
+  ScreenshotController screenshotController = ScreenshotController();
 
   bool statusLoggin = false;
-
+  final FlutterShareMe flutterShareMe = FlutterShareMe();
   @override
   void initState() {
     homeController.getAllNewsData();
@@ -51,87 +61,89 @@ class HomePageState extends State<MyHomePage> {
         backgroundColor: Colors.white,
         body: SafeArea(
             child: Container(
-                child: Column(
-          children: [
-            //toolbar
-            Visibility(
-                visible: homeController.isVisible.value,
-                child: topBar(widthscreen)),
-            Obx(
-              () => FutureBuilder<List<DataArticle>?>(
-                future: homeController.getUpdatedList(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Container(
-                      height: MediaQuery.of(context).size.height * 0.79,
-                      child: Align(
-                          alignment: Alignment.center,
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                                MyColors.themeColor),
-                          )),
-                    );
-                  } else if (snapshot.data?.length == 0) {
-                    return Container(
-                      height: MediaQuery.of(context).size.height * 0.79,
-                      child: Align(
-                          alignment: Alignment.center,
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                                MyColors.themeColor),
-                          )),
-                    );
-                  } else {
-                    List<DataArticle>? listOfArticle = snapshot.data;
-                    var height = homeController.isVisible.value
-                        ? MediaQuery.of(context).size.height * 0.7901
-                        : MediaQuery.of(context).size.height;
+                child: Expanded(
+          child: Column(
+            children: [
+              //toolbar
+              Visibility(
+                  visible: homeController.isVisible.value,
+                  child: topBar(widthscreen)),
+              Obx(
+                () => FutureBuilder<List<DataArticle>?>(
+                  future: homeController.getUpdatedList(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Container(
+                        height: MediaQuery.of(context).size.height * 0.79,
+                        child: Align(
+                            alignment: Alignment.center,
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  MyColors.themeColor),
+                            )),
+                      );
+                    } else if (snapshot.data?.length == 0) {
+                      return Container(
+                        height: MediaQuery.of(context).size.height * 0.79,
+                        child: Align(
+                            alignment: Alignment.center,
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  MyColors.themeColor),
+                            )),
+                      );
+                    } else {
+                      List<DataArticle>? listOfArticle = snapshot.data;
+                      var height = homeController.isVisible.value
+                          ? MediaQuery.of(context).size.height * 0.77
+                          : MediaQuery.of(context).size.height;
 
-                    return GestureDetector(
-                        onHorizontalDragEnd: (DragEndDetails details) {
-                          if (details.primaryVelocity! > 0) {
-                            // User swiped Left
-                            Navigator.of(context).push(ProfilePageRoute());
-                          } else if (details.primaryVelocity! < 0) {
-                            // User swiped Right
-                            Navigator.of(context)
-                                .push(FullPageRoute(articleFull, newsId));
-                          }
-                        },
-                        child: CarouselSlider.builder(
-                            carouselController: CarouselController(),
-                            options: CarouselOptions(
-                              scrollDirection: Axis.vertical,
-                              height: height,
-                              enableInfiniteScroll: false,
-                              initialPage: homeController.indexCurrent.value,
-                              viewportFraction: 1.0,
-                              enlargeCenterPage: true,
-                            ),
-                            itemCount: listOfArticle?.length,
-                            itemBuilder: (BuildContext context, int itemIndex,
-                                int pageViewIndex) {
-                              int? lengthCurrent = listOfArticle?.length;
+                      return GestureDetector(
+                          onHorizontalDragEnd: (DragEndDetails details) {
+                            if (details.primaryVelocity! > 0) {
+                              // User swiped Left
+                              Navigator.of(context).push(ProfilePageRoute());
+                            } else if (details.primaryVelocity! < 0) {
+                              // User swiped Right
+                              Navigator.of(context)
+                                  .push(FullPageRoute(articleFull, newsId));
+                            }
+                          },
+                          child: CarouselSlider.builder(
+                              carouselController: CarouselController(),
+                              options: CarouselOptions(
+                                scrollDirection: Axis.vertical,
+                                height: height,
+                                enableInfiniteScroll: false,
+                                initialPage: homeController.indexCurrent.value,
+                                viewportFraction: 1.0,
+                                enlargeCenterPage: true,
+                              ),
+                              itemCount: listOfArticle?.length,
+                              itemBuilder: (BuildContext context, int itemIndex,
+                                  int pageViewIndex) {
+                                int? lengthCurrent = listOfArticle?.length;
 
-                              print("ListData $lengthCurrent");
-                              print("ListIndex $itemIndex");
+                                print("ListData $lengthCurrent");
+                                print("ListIndex $itemIndex");
 
-                              var article = listOfArticle![itemIndex];
+                                var article = listOfArticle![itemIndex];
 
-                              articleFull = article.url!;
-                              newsId = article.id.toString();
+                                articleFull = article.url!;
+                                newsId = article.id.toString();
 
-                              if (itemIndex == lengthCurrent! - 2) {
-                                homeController.getMoreData(itemIndex);
-                              }
-                              return fullCourosolView(article);
-                            }));
-                  }
-                },
-              ),
-            )
-            //main view
-          ],
+                                if (itemIndex == lengthCurrent! - 2) {
+                                  homeController.getMoreData(itemIndex);
+                                }
+                                return fullCourosolView(article);
+                              }));
+                    }
+                  },
+                ),
+              )
+              //main view
+            ],
+          ),
         ))));
   }
 
@@ -144,12 +156,18 @@ class HomePageState extends State<MyHomePage> {
 
     return Stack(
       children: [
+        Positioned.fill(
+            child: Container(
+          color: Colors.white,
+        )),
         NewsItem(
             title: article.title,
             imageUrl: image,
             description: article.description ?? "  ",
             author: author,
-            source: article.source),
+            source: article.source,
+          link: false,
+        ),
         Padding(
           padding: const EdgeInsets.only(right: 8.0),
           child: Align(
@@ -203,7 +221,44 @@ class HomePageState extends State<MyHomePage> {
                   height: 5,
                 ),
                 GestureDetector(
-                  onTap: () => {},
+                  onTap: () async {
+                    //final imageFile = await screenshotController.capture();
+                    final imageFile = await screenshotController.captureFromWidget(
+                        Container(
+                          color: Colors.white,
+                      child: Column(children: [
+                        Text( "https://play.google.com/store/apps/details?id=com.app.ketitik.ketitik"),
+                        NewsItem(
+                            title: article.title,
+                            imageUrl: image,
+                            description: article.description ?? "  ",
+                            author: author,
+                            source: article.source,
+                          link: true
+                        ),
+                      ],),
+                    ));
+                    if (imageFile != null) {
+                      final directory =
+                          await getApplicationDocumentsDirectory();
+                      final imagePath =
+                          await File('${directory.path}/image.png').create();
+                      await imagePath.writeAsBytes(imageFile);
+
+                      // String? result = await FlutterSocialContentShare.share(
+                      //     type: ShareType.,
+                      //     url: "https://www.apple.com",
+                      //     quote: "captions");
+                      // print(result);
+
+                      /// Share Plugin
+                      await Share.shareFiles([imagePath.path],
+                          text:
+                              "https://play.google.com/store/apps/details?id=com.app.ketitik.ketitik",
+                        subject: "https://play.google.com/store/apps/details?id=com.app.ketitik.ketitik"
+                      );
+                    }
+                  },
                   child: Container(
                     height: 40,
                     width: 40,
@@ -255,7 +310,7 @@ class HomePageState extends State<MyHomePage> {
                       child: getBottomText(article.title.toString(), 50)),
                 ),
               )),
-        )
+        ),
       ],
     );
   }

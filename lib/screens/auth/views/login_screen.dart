@@ -1,10 +1,15 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:get/get.dart';
 import 'package:ketitik/screens/auth/controller/login_controller.dart';
 import 'package:ketitik/screens/homescreen/view/home_screen.dart';
 import 'package:twitter_login/twitter_login.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+
 
 import '../../../utility/social_credentials.dart';
 
@@ -28,6 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     controller.googleSignIn.signOut();
+    if (Platform.isAndroid) WebView.platform = AndroidWebView();
     super.initState();
   }
 
@@ -89,20 +95,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
               ),
-              //  Padding(
-              //   padding: const EdgeInsets.only(left: 13.0, right: 13.0),
-              //   child: SignInButton(
-              //     Buttons.Facebook,
-              //     elevation: 6.0,
-              //     text: "Sign in with Facebook",
-              //     padding: const EdgeInsets.symmetric(vertical: 2),
-              //     shape: RoundedRectangleBorder(
-              //         borderRadius: BorderRadius.circular(15)),
-              //     onPressed: () {
-              //       controller.facebookLogin();
-              //     },
-              //   ),
-              // ),
+               Padding(
+                padding: const EdgeInsets.only(left: 13.0, right: 13.0),
+                child: SignInButton(
+                  Buttons.Facebook,
+                  elevation: 6.0,
+                  text: "Sign in with Facebook",
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  onPressed: () {
+                    controller.facebookLogin();
+                  },
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.only(left: 13.0, right: 13.0),
                 child: SignInButton(
@@ -141,6 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   onLogin() async {
+
     final twitterLogin = TwitterLogin(
         apiKey: SocialCrendentials().apiKeyTwitter,
         apiSecretKey: SocialCrendentials().apiSecretKey,
@@ -153,6 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await FirebaseAuth.instance.signInWithCredential(twitterAuthCredentials);
     },
     );
+
 
   }
 }
