@@ -66,7 +66,8 @@ class NewsItem extends StatelessWidget {
               clipBehavior: Clip.antiAliasWithSaveLayer,
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20)),
               ),
               margin: const EdgeInsets.all(5.0),
               semanticContainer: true,
@@ -145,27 +146,19 @@ class NewsItem extends StatelessWidget {
                     ],
                   ),
                   Visibility(
-                    visible: link==true?true:false,
+                    visible: link == true ? true : false,
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: Text("Shared By : ",style: const TextStyle(
-                    color: Colors.black,
-                      fontSize: 14,
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.normal,
-                    ),),
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Center(
+                            child: Image.asset(
+                              "assets/images/redketifull.png",
+                              height: 60,
+                              width: 60,
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Center(
-                                child: Image.asset("assets/images/redketifull.png")
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
