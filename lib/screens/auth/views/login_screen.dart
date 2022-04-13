@@ -68,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           horizontal: 14, vertical: 8),
                       shape: const StadiumBorder()),
                   onPressed: () {
-                    Get.to(() => const MyHomePage());
+                    Get.to(() =>  MyHomePage.withA());
                   },
                 ),
               ),

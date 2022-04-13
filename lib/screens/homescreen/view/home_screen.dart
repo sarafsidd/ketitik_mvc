@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
@@ -12,22 +13,28 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:ketitik/models/newsdata.dart';
+import 'package:ketitik/screens/bookmark/bookmarkcontroller.dart';
 import 'package:ketitik/screens/searchscreen/views/search_page.dart';
+import 'package:ketitik/screens/staticpages/fullnewspage.dart';
 import 'package:ketitik/services/api_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter_social_content_share/flutter_social_content_share.dart';
 
-
 import '../../../controller/home_controller.dart';
+import '../../../controller/profile_controller.dart';
 import '../../../utility/colorss.dart';
+import '../../../utility/prefrence_service.dart';
 import '../../../utility/swipeaction.dart';
+import '../../bookmark/modelbookmark.dart';
 import '../../profile/profilescreen.dart';
 import '../widgets/news_item.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+  List<BookMarkData> bklist = <BookMarkData>[];
+   MyHomePage({Key? key,required this.bklist}) : super(key: key);
+   MyHomePage.withA({Key? key}) ;
 
   @override
   State<MyHomePage> createState() => HomePageState();
@@ -37,10 +44,17 @@ class HomePageState extends State<MyHomePage> {
   int selectedIndex = 0;
   final APIService _apiService = APIService();
   final HomeController homeController = Get.put(HomeController());
+  final BookmarkController bookmarkController = Get.put( BookmarkController());
+  ProfileController profileController = ProfileController();
+  PrefrenceService prefrenceService = PrefrenceService();
   var articleFull = "";
+  var articleTitle = "";
   var newsId = "";
   var articleCurrent;
   var page_number = 1;
+  String userToken = "";
+  bool isbookMarked = false;
+
   late Uint8List _imageFile;
   ScreenshotController screenshotController = ScreenshotController();
 
@@ -48,9 +62,18 @@ class HomePageState extends State<MyHomePage> {
   final FlutterShareMe flutterShareMe = FlutterShareMe();
   @override
   void initState() {
+    getUserToken();
     homeController.getAllNewsData();
     homeController.getLoggedinStatus();
+    bookmarkController.getDataBookMarkOffline(userToken);
+    _apiService.getBookmarkNews(userToken);
+    //find();
     super.initState();
+  }
+
+  getUserToken() {
+    prefrenceService.getToken().then((value) => {userToken = value!});
+    print("token : $userToken");
   }
 
   @override
@@ -130,6 +153,7 @@ class HomePageState extends State<MyHomePage> {
                                 var article = listOfArticle![itemIndex];
 
                                 articleFull = article.url!;
+                                articleTitle = article.title!;
                                 newsId = article.id.toString();
 
                                 if (itemIndex == lengthCurrent! - 2) {
@@ -153,6 +177,9 @@ class HomePageState extends State<MyHomePage> {
     if (author == null || author.contains("nil")) {
       author = "As per Sources";
     }
+    //bool isBookMark = bookmarkController.isPresent(article.id.toString());
+    bool isBookMark = find(article);
+    print("Scroo bookl : $isbookMarked");
 
     return Stack(
       children: [
@@ -161,125 +188,149 @@ class HomePageState extends State<MyHomePage> {
           color: Colors.white,
         )),
         NewsItem(
-            title: article.title,
-            imageUrl: image,
-            description: article.description ?? "  ",
-            author: author,
-            source: article.source,
+          title: article.title,
+          imageUrl: image,
+          description: article.description ?? "  ",
+          author: author,
+          source: article.source,
           link: false,
         ),
         Padding(
           padding: const EdgeInsets.only(right: 8.0),
           child: Align(
             alignment: FractionalOffset.bottomRight,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                GestureDetector(
-                  onTap: () => {},
-                  child: Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(
-                          10,
-                        )),
-                    child: Center(
-                      child: Icon(
-                        Icons.volunteer_activism,
-                        color: MyColors.themeColor,
-                        size: 22,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                GestureDetector(
-                  onTap: () => {},
-                  child: Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(
-                          10,
-                        )),
-                    child: Center(
-                      child: Icon(
-                        Icons.bookmark_border,
-                        color: MyColors.themeColor,
-                        size: 22,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                GestureDetector(
-                  onTap: () async {
-                    //final imageFile = await screenshotController.capture();
-                    final imageFile = await screenshotController.captureFromWidget(
-                        Container(
+            child: GestureDetector(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                    onTap: () {},
+                    child: Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
                           color: Colors.white,
-                      child: Column(children: [
-                        Text( "https://play.google.com/store/apps/details?id=com.app.ketitik.ketitik"),
-                        NewsItem(
-                            title: article.title,
-                            imageUrl: image,
-                            description: article.description ?? "  ",
-                            author: author,
-                            source: article.source,
-                          link: true
+                          borderRadius: BorderRadius.circular(
+                            10,
+                          )),
+                      child: Center(
+                        child: Icon(
+                          Icons.volunteer_activism,
+                          color: MyColors.themeColor,
+                          size: 22,
                         ),
-                      ],),
-                    ));
-                    if (imageFile != null) {
-                      final directory =
-                          await getApplicationDocumentsDirectory();
-                      final imagePath =
-                          await File('${directory.path}/image.png').create();
-                      await imagePath.writeAsBytes(imageFile);
-
-                      // String? result = await FlutterSocialContentShare.share(
-                      //     type: ShareType.,
-                      //     url: "https://www.apple.com",
-                      //     quote: "captions");
-                      // print(result);
-
-                      /// Share Plugin
-                      await Share.shareFiles([imagePath.path],
-                          text:
-                              "https://play.google.com/store/apps/details?id=com.app.ketitik.ketitik",
-                        subject: "https://play.google.com/store/apps/details?id=com.app.ketitik.ketitik"
-                      );
-                    }
-                  },
-                  child: Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(
-                          10,
-                        )),
-                    child: Center(
-                      child: Icon(
-                        Icons.share,
-                        color: MyColors.themeColor,
-                        size: 22,
                       ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  height: 55,
-                ),
-              ],
+                  SizedBox(
+                    height: 5,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      getUserToken();
+                      log("hello");
+                      log("${article.url},${article.id.toString()},${article.title},${userToken.length}");
+
+                       _apiService.addBookmark(
+                              article.url,
+                              article.id.toString(),
+                              article.title,
+                              userToken,
+                            );
+
+                    },
+                    child: Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(
+                            10,
+                          )),
+                      child:
+                         Center(
+                          child: find(article)
+                              ? Icon(
+                                  Icons.bookmark,
+                                  color: MyColors.themeColor,
+                                  size: 22,
+                                )
+                              : Icon(
+                                  Icons.bookmark_border,
+                                  color: MyColors.themeColor,
+                                  size: 22,
+                                ),
+                        ),
+
+                    ),
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      //final imageFile = await screenshotController.capture();
+                      final imageFile = await screenshotController
+                          .captureFromWidget(Container(
+                        color: Colors.white,
+                        child: Column(
+                          children: [
+                            Text(
+                                "https://play.google.com/store/apps/details?id=com.app.ketitik.ketitik"),
+                            NewsItem(
+                                title: article.title,
+                                imageUrl: image,
+                                description: article.description ?? "  ",
+                                author: author,
+                                source: article.source,
+                                link: true),
+                          ],
+                        ),
+                      ));
+                      if (imageFile != null) {
+                        final directory =
+                            await getApplicationDocumentsDirectory();
+                        final imagePath =
+                            await File('${directory.path}/image.png').create();
+                        await imagePath.writeAsBytes(imageFile);
+
+                        // String? result = await FlutterSocialContentShare.share(
+                        //     type: ShareType.,
+                        //     url: "https://www.apple.com",
+                        //     quote: "captions");
+                        // print(result);
+
+                        /// Share Plugin
+                        await Share.shareFiles([imagePath.path],
+                            text:
+                                "https://play.google.com/store/apps/details?id=com.app.ketitik.ketitik",
+                            subject:
+                                "https://play.google.com/store/apps/details?id=com.app.ketitik.ketitik");
+                      }
+                    },
+                    child: Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(
+                            10,
+                          )),
+                      child: Center(
+                        child: Icon(
+                          Icons.share,
+                          color: MyColors.themeColor,
+                          size: 22,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 55,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -579,5 +630,29 @@ class HomePageState extends State<MyHomePage> {
         ],
       ),
     );
+  }
+
+
+  bool find(DataArticle article){
+    bool t = false;
+    print("lebth .....${widget.bklist.length}");
+    // for(int i = 0; i < widget.bklist.length; i++){
+    //   print("bkmkid : ${widget.bklist[i].bmkId}");
+    //   if(widget.bklist[i].bmkId == article.id){
+    //     t = true;
+    //   }else{
+    //     t = false;
+    //   // }
+    // }
+    final j = widget.bklist.where((element) => element.bmkId == article.id);
+    if(j.isNotEmpty){
+      t = true;
+    }else{
+      t = false;
+    }
+    print("value is : $t");
+
+    print("article id :${article.id}");
+    return t;
   }
 }

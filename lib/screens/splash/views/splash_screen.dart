@@ -2,7 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ketitik/screens/bookmark/bookmarkcontroller.dart';
+import 'package:ketitik/screens/bookmark/modelbookmark.dart';
 import 'package:ketitik/screens/homescreen/view/home_screen.dart';
+import 'package:ketitik/services/api_service.dart';
 import 'package:ketitik/utility/prefrence_service.dart';
 
 import '../../auth/controller/login_controller.dart';
@@ -18,19 +21,25 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   var controller = Get.find<LoginController>();
   PrefrenceService prefrenceService = PrefrenceService();
-
+  BookmarkController bookmarkController = BookmarkController();
+  APIService _apiService =APIService();
+  List<BookMarkData> bkmrkList = <BookMarkData>[];
   @override
   void initState() {
     getBoolStatus();
+
     super.initState();
   }
 
   getBoolStatus() async {
     bool status = await prefrenceService.getLoggedIn();
+    String? token = await prefrenceService.getToken();
     print("login status $status");
+    print("logstat token : $token");
+    bkmrkList = await _apiService.getBookmarkNews(token!);
     Timer(const Duration(seconds: 3), () {
       Get.off(
-        () => status ? MyHomePage() : LoginScreen(),
+        () => status ? MyHomePage(bklist: bkmrkList,) : LoginScreen(),
       );
     });
   }

@@ -1,8 +1,9 @@
 import 'package:get/get.dart';
+import 'package:ketitik/controller/home_controller.dart';
 
 class HomeBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => HomeBinding(), fenix: true);
+    Get.lazyPut(() => HomeController());
   }
 }

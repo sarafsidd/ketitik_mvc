@@ -145,7 +145,7 @@ class _PrefrenceScreenState extends State<MyPrefrenceScreen> {
                     selectedCategoryIds.clear();
                     ApplicationUtils.closeDialog();
                     Get.to(
-                      () => const MyHomePage(),
+                      () =>  MyHomePage.withA(),
                     );
                   } else {
                     ApplicationUtils.closeDialog();

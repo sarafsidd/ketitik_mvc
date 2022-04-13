@@ -6,7 +6,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 import '../../utility/colorss.dart';
 
 class FullNewsPage extends StatefulWidget {
-  final String fullnewsUrl;
+  final String? fullnewsUrl;
   final String newsId;
 
   FullNewsPage({Key? key, required this.newsId, required this.fullnewsUrl})

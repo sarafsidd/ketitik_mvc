@@ -15,10 +15,13 @@ import '../models/category.dart';
 import '../models/news.dart';
 import '../models/privacymodel.dart';
 import '../models/staticcontentmodel.dart';
+import '../screens/bookmark/modelbookmark.dart';
 import '../screens/prefrences/preferencemodel.dart';
 import '../utility/prefrence_service.dart';
 
 class APIService {
+  final getBookmarkUrl = "http://83.136.219.147/News/public/api/getBookmarks";
+  final addBookmarkUrl = "http://83.136.219.147/News/public/api/addBookmark";
   final getPreferences = "http://83.136.219.147/News/public/api/getPrefrences";
 
   final terms = "http://83.136.219.147/News/public/api/terms_condition";
@@ -65,6 +68,28 @@ class APIService {
       return "";
     }
   }
+
+
+  Future<List<BookMarkData>> getBookmarkNews(String token) async {
+    try {
+      var response = await http.post(Uri.parse(getBookmarkUrl),
+          headers: {"token": token}).catchError((err) {
+        print('Error : $err');
+      });
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final news = bookmarkFromJson(response.body);
+        print("Search news : ${news.data}");
+        return news.data;
+      } else {
+        return [];
+      }
+    } catch (e) {
+      print("Error ${e.toString()}");
+      return [];
+    }
+  }
+
+
 
   hitReadNewsApi(String newsId) async {
     try {
@@ -407,6 +432,7 @@ class APIService {
 
   getUserToken() {
     prefrenceService.getToken().then((value) => {userToken = value!});
+    print("token : $userToken");
   }
 
   Future<List<DataArticle>?> getFeedsData(
@@ -499,5 +525,37 @@ class APIService {
       return e.toString();
     }
   }
+
+  addBookmark(
+      String? urlsss, String? news_id, String? title, String authToken) async {
+    final url = Uri.parse(addBookmarkUrl);
+
+    Map<String, dynamic> mapData = {
+      "url": urlsss,
+      "news_id": news_id,
+      "title": title,
+    };
+
+    print('response Add Bookmark : $mapData');
+
+    try {
+      var response =
+      await http.post(url, headers: {"token": authToken}, body: mapData);
+
+      print('response Add Bookmark : ${response.body.toString()}');
+
+      if (response.statusCode == 200) {
+        var reponseData = json.decode(response.body);
+        print('response Add Bookmark : $reponseData');
+        return reponseData;
+      }
+    } catch (e) {
+      print('response Add Bookmark : ${e.toString()}');
+
+      return e.toString();
+    }
+  }
 }
+
+
 
