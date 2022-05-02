@@ -1,15 +1,12 @@
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:get/get.dart';
 import 'package:ketitik/screens/auth/controller/login_controller.dart';
-import 'package:ketitik/screens/homescreen/view/home_screen.dart';
 import 'package:twitter_login/twitter_login.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-
 
 import '../../../utility/social_credentials.dart';
 
@@ -26,7 +23,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    //controller.dispose();
     super.dispose();
   }
 
@@ -55,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Align(
+              /*Align(
                 alignment: Alignment.topRight,
                 child: ElevatedButton(
                   child: const Text(
@@ -68,10 +64,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           horizontal: 14, vertical: 8),
                       shape: const StadiumBorder()),
                   onPressed: () {
-                    Get.to(() =>  MyHomePage.withA());
+                    Get.to(() => MyHomePage.withA());
                   },
                 ),
-              ),
+              ),*/
               SizedBox(
                 height: 50,
               ),
@@ -95,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
               ),
-               Padding(
+              /*Padding(
                 padding: const EdgeInsets.only(left: 13.0, right: 13.0),
                 child: SignInButton(
                   Buttons.Facebook,
@@ -119,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(15)),
                   onPressed: onLogin,
                 ),
-              ),
+              ),*/
               const SizedBox(
                 height: 15,
               ),
@@ -147,20 +143,19 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   onLogin() async {
-
     final twitterLogin = TwitterLogin(
         apiKey: SocialCrendentials().apiKeyTwitter,
         apiSecretKey: SocialCrendentials().apiSecretKey,
         redirectURI: SocialCrendentials().redirectURI);
-    await twitterLogin.login().then((value) async {
-      final twitterAuthCredentials = TwitterAuthProvider.credential(
-          accessToken: value.authToken.toString(),
-          secret: value.authTokenSecret.toString());
-      print(value.authToken.toString());
-      await FirebaseAuth.instance.signInWithCredential(twitterAuthCredentials);
-    },
+    await twitterLogin.login().then(
+      (value) async {
+        final twitterAuthCredentials = TwitterAuthProvider.credential(
+            accessToken: value.authToken.toString(),
+            secret: value.authTokenSecret.toString());
+        print(value.authToken.toString());
+        await FirebaseAuth.instance
+            .signInWithCredential(twitterAuthCredentials);
+      },
     );
-
-
   }
 }

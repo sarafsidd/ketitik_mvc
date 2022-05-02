@@ -98,10 +98,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         alignment: Alignment.topCenter,
                         child: Row(
                           children: [
-                            Image.asset(
-                              "assets/images/left.png",
-                              height: 25,
-                              width: 25,
+                            InkWell(
+                              child: Image.asset(
+                                "assets/images/left.png",
+                                height: 25,
+                                width: 25,
+                              ),
+                              onTap: () =>
+                                  {ApplicationUtils.onBackPress(context)},
                             ),
                             const SizedBox(
                               width: 125,
@@ -123,13 +127,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         itemCount: avatarList.length,
                         itemBuilder: (context, index) {
                           return GestureDetector(
-                            onTap: () {
+                            onTap: () => {
                               setState(() {
                                 selectedIndex = index;
                                 prefrenceService
                                     .setAvatarImage(index.toString().trim());
                                 profileController.avatarIndex.value = index;
-                              });
+                              })
                             },
                             child: Container(
                                 width: 85,
@@ -273,7 +277,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           ),
                         ),
                         Container(
-                          margin: const EdgeInsets.all(15.0),
+                          margin: const EdgeInsets.all(10.0),
                           child: ElevatedButton(
                             child: const Text('Save Changes'),
                             style: ElevatedButton.styleFrom(

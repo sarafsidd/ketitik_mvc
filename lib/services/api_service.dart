@@ -1,22 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:api_cache_manager/models/cache_db_model.dart';
 import 'package:api_cache_manager/utils/cache_manager.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:ketitik/models/newsdata.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../models/allnewsmodel.dart';
 import '../models/category.dart';
-import '../models/news.dart';
+import '../models/ketitiknews.dart';
 import '../models/privacymodel.dart';
 import '../models/staticcontentmodel.dart';
 import '../screens/bookmark/modelbookmark.dart';
 import '../screens/prefrences/preferencemodel.dart';
+import '../utility/application_utils.dart';
 import '../utility/prefrence_service.dart';
 
 class APIService {
@@ -69,27 +65,26 @@ class APIService {
     }
   }
 
-
-  Future<List<BookMarkData>> getBookmarkNews(String token) async {
+  Future<List<BookMarkData>> getBookmarkNews(String deviceId) async {
     try {
       var response = await http.post(Uri.parse(getBookmarkUrl),
-          headers: {"token": token}).catchError((err) {
-        print('Error : $err');
+          headers: {}, body: {"device_id": deviceId}).catchError((err) {
+        print('Bookmark Error : $err');
       });
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final news = bookmarkFromJson(response.body);
-        print("Search news : ${news.data}");
+        print("Bookmark news : ${response.body}");
+        final news = bookMarkDataFromJson(response.body);
+
         return news.data;
       } else {
+        print("Bookmark news : 0 Data");
         return [];
       }
     } catch (e) {
-      print("Error ${e.toString()}");
+      print("Bookmark Error ${e.toString()}");
       return [];
     }
   }
-
-
 
   hitReadNewsApi(String newsId) async {
     try {
@@ -109,26 +104,32 @@ class APIService {
       return "";
     }
   }
-  //cached allnews data
-  Future<List<DataArticle>?> getAllArticles(  {required String filter, String? pageNumber}) async {
+
+  Future<List<KetitikModel>?> getAllArticles(
+      {required String filter, String? pageNumber, String? deviceId}) async {
     try {
-      var isCacheExist =
-      await APICacheManager().isAPICacheKeyExist("API_Categories");
-      print("pageNumber---->$pageNumber");
+      bool statusLogin = await prefrenceService.getLoggedIn();
+      bool statusInternet = await ApplicationUtils.isOnline();
 
-      if (!isCacheExist) {
-        var response = await http.post(allnewsurls,
-            headers: {},
-            body: {"page": pageNumber.toString(),"filter": filter}).catchError((err)async {
+      if (statusInternet) {
+        print("loginStatus---->$statusLogin");
 
+        var response = await http.post(allnewsurls, headers: {}, body: {
+          "device_id": deviceId,
+          "page": pageNumber.toString(),
+          "filter": filter
+        }).catchError((err) async {
           print('newsdata  : $err');
         });
+
         print("URl hit");
+        print("response ${response.body.toString()}");
+        print("response ${response.statusCode.toString()}");
         if (response.statusCode == 200 || response.statusCode == 201) {
           APICacheDBModel cacheDBModel =
-          APICacheDBModel(key: "API_Categories", syncData: response.body);
+              APICacheDBModel(key: "API_Categories", syncData: response.body);
           await APICacheManager().addCacheData(cacheDBModel);
-          final news = newsDataFromJson(response.body);
+          final news = keTitikNewsFromJson(response.body);
 
           return news.data;
         } else {
@@ -138,83 +139,89 @@ class APIService {
       } else {
         var cacheData = await APICacheManager().getCacheData("API_Categories");
         print("chace hit");
-        final news = newsDataFromJson(cacheData.syncData);
+        final news = keTitikNewsFromJson(cacheData.syncData);
 
         return news.data;
       }
     } catch (e) {
       print("Error ${e.toString()}");
-      var cacheData = await APICacheManager().getCacheData("API_Categories");
-      print("chace hit");
-      final news = newsDataFromJson(cacheData.syncData);
 
-      return news.data;
       return [];
     }
   }
+
   //cached top Stories data
-  Future<List<DataArticle>?> getTopArticles(  {required String filter, String? pageNumber}) async {
+  Future<List<KetitikModel>?> getTopArticles(
+      {required String filter, String? pageNumber, String? deviceId}) async {
     try {
-      var isCacheExist =
-      await APICacheManager().isAPICacheKeyExist("Top_Stories");
       print("pageNumber---->$pageNumber");
-
-      if (!isCacheExist) {
-        var response = await http.post(allnewsurls,
-            headers: {},
-            body: {"page": pageNumber.toString(),"filter": "top"}).catchError((err)async {
-
+      bool statusInternet = await ApplicationUtils.isOnline();
+      if (statusInternet) {
+        var response = null;
+        String tokenAuth = await prefrenceService.getAuthToken();
+        print("authToken Top --->$tokenAuth");
+        response = await http.post(allnewsurls, headers: {}, body: {
+          "device_id": deviceId,
+          "page": pageNumber.toString(),
+          "filter": filter
+        }).catchError((err) async {
           print('newsdata  : $err');
         });
+
         print("URl hit");
+        print(" top stories ${response.body.toString()}");
         if (response.statusCode == 200 || response.statusCode == 201) {
+          print(response.body.toString());
+          final news = keTitikNewsFromJson(response.body);
+
           APICacheDBModel cacheDBModel =
-          APICacheDBModel(key: "Top_Stories", syncData: response.body);
+              APICacheDBModel(key: "Top_Stories", syncData: response.body);
           await APICacheManager().addCacheData(cacheDBModel);
-          final news = newsDataFromJson(response.body);
 
           return news.data;
         } else {
-          print("newsdataelse : ");
+          print("newsdata else : ");
           return [];
         }
       } else {
         var cacheData = await APICacheManager().getCacheData("Top_Stories");
         print("chace hit");
-        final news = newsDataFromJson(cacheData.syncData);
+        final news = keTitikNewsFromJson(cacheData.syncData);
 
         return news.data;
       }
     } catch (e) {
       print("Error ${e.toString()}");
-      var cacheData = await APICacheManager().getCacheData("Top_Stories");
-      print("chace hit");
-      final news = newsDataFromJson(cacheData.syncData);
-
-      return news.data;
       return [];
     }
   }
+
   //cached trending data
-  Future<List<DataArticle>?> gettrendingArticles(  {required String filter, String? pageNumber}) async {
+  Future<List<KetitikModel>?> gettrendingArticles(
+      {required String filter, String? pageNumber, String? deviceId}) async {
     try {
       var isCacheExist =
-      await APICacheManager().isAPICacheKeyExist("Trending_Stories");
+          await APICacheManager().isAPICacheKeyExist("Trending_Stories");
       print("pageNumber---->$pageNumber");
 
-      if (!isCacheExist) {
-        var response = await http.post(allnewsurls,
-            headers: {},
-            body: {"page": pageNumber.toString(),"filter": "top"}).catchError((err)async {
-
+      bool statusInternet = await ApplicationUtils.isOnline();
+      if (statusInternet) {
+        var response = null;
+        //if (statusLogin) {
+        String tokenAuth = await prefrenceService.getAuthToken();
+        response = await http.post(allnewsurls, headers: {}, body: {
+          "device_id": deviceId,
+          "page": pageNumber.toString(),
+          "filter": filter
+        }).catchError((err) async {
           print('newsdata  : $err');
         });
         print("URl hit");
         if (response.statusCode == 200 || response.statusCode == 201) {
           APICacheDBModel cacheDBModel =
-          APICacheDBModel(key: "Trending_Stories", syncData: response.body);
+              APICacheDBModel(key: "Trending_Stories", syncData: response.body);
           await APICacheManager().addCacheData(cacheDBModel);
-          final news = newsDataFromJson(response.body);
+          final news = keTitikNewsFromJson(response.body);
 
           return news.data;
         } else {
@@ -222,42 +229,41 @@ class APIService {
           return [];
         }
       } else {
-        var cacheData = await APICacheManager().getCacheData("Trending_Stories");
+        var cacheData =
+            await APICacheManager().getCacheData("Trending_Stories");
         print("chace hit");
-        final news = newsDataFromJson(cacheData.syncData);
+        final news = keTitikNewsFromJson(cacheData.syncData);
 
         return news.data;
       }
     } catch (e) {
       print("Error ${e.toString()}");
-      var cacheData = await APICacheManager().getCacheData("Trending_Stories");
-      print("chace hit");
-      final news = newsDataFromJson(cacheData.syncData);
-
-      return news.data;
       return [];
     }
   }
-  Future<List<DataArticle>?> getFeedArticles(  {required String filter, String? pageNumber, String? tokenAuth}) async {
+
+  Future<List<KetitikModel>?> getFeedArticles(
+      {required String filter, String? pageNumber, String? deviceId}) async {
     try {
-      var isCacheExist =
-      await APICacheManager().isAPICacheKeyExist("Feed_Stories");
       print("pageNumber---->$pageNumber");
 
-      if (!isCacheExist) {
-        var response = await http.post(allnewsurls,
-            headers: {},
-            body: {"page": pageNumber.toString(),"filter": "feeds"}).catchError((err)async {
-
+      bool statusInternet = await ApplicationUtils.isOnline();
+      if (statusInternet) {
+        var response = await http.post(allnewsurls, headers: {}, body: {
+          "page": pageNumber.toString(),
+          "device_id": deviceId,
+          "filter": filter
+        }).catchError((err) async {
           print('newsdata  : $err');
         });
+
         print("URl hit");
         if (response.statusCode == 200 || response.statusCode == 201) {
           APICacheDBModel cacheDBModel =
-          APICacheDBModel(key: "Feed_Stories", syncData: response.body);
+              APICacheDBModel(key: "Feed_Stories", syncData: response.body);
           await APICacheManager().addCacheData(cacheDBModel);
-          final news = newsDataFromJson(response.body);
 
+          final news = keTitikNewsFromJson(response.body);
           return news.data;
         } else {
           print("newsdataelse : ");
@@ -265,22 +271,15 @@ class APIService {
         }
       } else {
         var cacheData = await APICacheManager().getCacheData("Feed_Stories");
-        print("chace hit");
-        final news = newsDataFromJson(cacheData.syncData);
+        print("Cache Hit");
+        final news = keTitikNewsFromJson(cacheData.syncData);
 
         return news.data;
       }
     } catch (e) {
       print("Error ${e.toString()}");
-      var cacheData = await APICacheManager().getCacheData("Feed_Stories");
-      print("chace hit");
-      final news = newsDataFromJson(cacheData.syncData);
-
-      return news.data;
-      return [];
     }
   }
-
 
   Future<String> getStaticPrivacy() async {
     try {
@@ -337,22 +336,6 @@ class APIService {
     }
   }
 
-  List<ArticleNews> shuffle(List<ArticleNews> items) {
-    var random = new Random();
-
-    // Go through all elements.
-    for (var i = items.length - 1; i > 0; i--) {
-      // Pick a pseudorandom number according to the list length
-      var n = random.nextInt(i + 1);
-
-      var temp = items[i];
-      items[i] = items[n];
-      items[n] = temp;
-    }
-
-    return items;
-  }
-
   String getCurrentDate() {
     DateTime dateToday = new DateTime.now();
     String date = dateToday.toString().substring(0, 10);
@@ -361,111 +344,19 @@ class APIService {
     return date; // 2021-06-24
   }
 
-  Future<List<ArticleNews>?> getDataArticles({page}) async {
-    String urlAll =
-        "https://newsapi.org/v2/everything?q=*&apiKey=65408a0791c443a09c98d1fb22117f04&language=id&from=${getCurrentDate()}&sortBy=publishedAt&pageSize=20&page=$page";
-    try {
-      var response = await http.get(Uri.parse(urlAll)).catchError((err) {
-        print('newsdata  : $err');
-      });
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final news = APINews.fromJson(json.decode(response.body));
-
-        List<ArticleNews> newsUpdated = shuffle(news.articles!);
-
-        return newsUpdated;
-      } else {
-        print("newsdataelse : ");
-        return [];
-      }
-    } catch (e) {
-      print("Error ${e.toString()}");
-      return [];
-    }
-  }
-
-  // Future<List<DataArticle>?> getAllArticles(
-  //     {required String filter, String? pageNumber}) async {
-  //   try {
-  //     var response = null;
-  //     var connectivityResult = await (Connectivity().checkConnectivity());
-  //     if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
-  //       // I am connected to a mobile network.
-  //       response = await http.post(allnewsurls,
-  //           headers: {},
-  //           body: {"page": pageNumber, "filter": filter}).catchError((err) {
-  //         print('newsdata  : $err');
-  //       });
-  //
-  //       if (response.statusCode == 200 || response.statusCode == 201) {
-  //         final news = newsDataFromJson(response.body);
-  //
-  //         return news.data;
-  //       } else {
-  //         print("newsdataelse : ");
-  //          return [];
-  //       }
-  //       // box.p;
-  //     }else{
-  //        List<DataArticle> offlinrRes =  await boxFetch('NewsDataservice');
-  //        print("listofdata : ${offlinrRes.length}");
-  //      return offlinrRes;
-  //     }
-  //
-  //
-  //   } catch (e) {
-  //     print("Error ${e.toString()}");
-  //     return [];
-  //   }
-  // }
-  Future<List<DataArticle>> boxFetch(String name)async{
-    var box = await Hive.openBox(name);
-    var listdata = box.toMap();
-    print("offline : $listdata");
-    List<DataArticle> dataList= [];
-    listdata.forEach((k,v) => dataList.add(v as DataArticle));
-
-    return dataList;
-  }
-
-
-
   getUserToken() {
     prefrenceService.getToken().then((value) => {userToken = value!});
     print("token : $userToken");
-  }
-
-  Future<List<DataArticle>?> getFeedsData(
-      {required String filter, String? pageNumber, String? tokenAuth}) async {
-    try {
-      getUserToken();
-      var response = null;
-
-      print('AuthToken  : $tokenAuth');
-      response = await http.post(allnewsurls,
-          headers: {"token": tokenAuth.toString()},
-          body: {"page": pageNumber, "filter": filter}).catchError((err) {});
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final news = newsDataFromJson(response.body);
-
-        return news.data;
-      } else {
-        print("newsdataelse : ");
-        return [];
-      }
-    } catch (e) {
-      print("Error ${e.toString()}");
-      return [];
-    }
   }
 
   Future<List<CategoryName>> getMyPreference(String token) async {
     final url = Uri.parse(getPreferences);
 
     try {
-      var response =
-          await http.post(url, headers: {"token": token}).catchError((err) {
+      var response = await http.post(
+        url,
+        body: {"device_id": token},
+      ).catchError((err) {
         print('Error : $err');
       });
 
@@ -502,7 +393,7 @@ class APIService {
     }
   }
 
-  saveUserPrefrence(String category, String deviceId, String authToken) async {
+  saveUserPrefrence(String category, String deviceId) async {
     final url =
         Uri.parse('http://83.136.219.147/News/public/api/userPreferences');
 
@@ -512,9 +403,10 @@ class APIService {
       "device_id": deviceId,
     };
 
+    print("$category --- $deviceId ---- [dl]");
+
     try {
-      var response =
-          await http.post(url, headers: {"token": authToken}, body: mapData);
+      var response = await http.post(url, headers: {}, body: mapData);
 
       if (response.statusCode == 200) {
         var reponseData = json.decode(response.body);
@@ -526,12 +418,15 @@ class APIService {
     }
   }
 
-  addBookmark(
+  Future<String> addBookmark(
       String? urlsss, String? news_id, String? title, String authToken) async {
+    String deviceId = await ApplicationUtils.getDeviceDetails();
+    String responseStr = "";
     final url = Uri.parse(addBookmarkUrl);
 
     Map<String, dynamic> mapData = {
       "url": urlsss,
+      "device_id": deviceId,
       "news_id": news_id,
       "title": title,
     };
@@ -539,23 +434,17 @@ class APIService {
     print('response Add Bookmark : $mapData');
 
     try {
-      var response =
-      await http.post(url, headers: {"token": authToken}, body: mapData);
-
+      var response = await http.post(url, headers: {}, body: mapData);
       print('response Add Bookmark : ${response.body.toString()}');
 
       if (response.statusCode == 200) {
-        var reponseData = json.decode(response.body);
-        print('response Add Bookmark : $reponseData');
-        return reponseData;
+        responseStr = response.body;
+        print('response Add Bookmark : $responseStr');
       }
     } catch (e) {
       print('response Add Bookmark : ${e.toString()}');
-
       return e.toString();
     }
+    return responseStr;
   }
 }
-
-
-

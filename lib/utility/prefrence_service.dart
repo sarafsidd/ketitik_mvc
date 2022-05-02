@@ -49,6 +49,19 @@ class PrefrenceService {
     return getAvatar;
   }
 
+  setDeviceId(String? avatar) async {
+    _prefs = await SharedPreferences.getInstance();
+    _prefs!.setString('deviceId', avatar!);
+    print("deviceId : $avatar");
+  }
+
+  getDeviceId() async {
+    _prefs = await SharedPreferences.getInstance();
+    String? getAvatar = _prefs!.getString('deviceId');
+    print("Get deviceId :$getAvatar");
+    return getAvatar;
+  }
+
   Future<String?> getName() async {
     _prefs = await SharedPreferences.getInstance();
     String? getName = _prefs!.getString('name');
@@ -70,18 +83,19 @@ class PrefrenceService {
     return getToken;
   }
 
+  Future<String> getAuthToken() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String getToken = prefs.getString('token').toString();
+    print("Get Token :$getToken");
+    return getToken;
+  }
+
   Future<String?> getPhone() async {
     _prefs = await SharedPreferences.getInstance();
     String? getPhone = _prefs!.getString('phone');
     print("Get Phone :$getPhone");
     return getPhone;
   }
-
-  /*getPrefrence() async {
-    List<String>? prefrence = _prefs!.getStringList("prefrence");
-    print("Get Token :$getToken");
-    return prefrence;
-  }*/
 
   Future clearToken() async {
     await _prefs!.clear();
@@ -96,26 +110,14 @@ class PrefrenceService {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getBool("logged_in") ?? false;
   }
+
+  Future<bool> setPreferenceSaved(bool status) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.setBool("logged_in", status);
+  }
+
+  Future<bool> getPreferenceSaved() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool("logged_in") ?? false;
+  }
 }
-
-// class SharedPrefrence {
-//   Future<bool> setLoggedIn(bool status) async {
-//     final SharedPreferences prefs = await SharedPreferences.getInstance();
-//     return prefs.setBool("logged_in", status);
-//   }
-
-//   Future<bool> getLogedIn() async {
-//     final SharedPreferences prefs = await SharedPreferences.getInstance();
-//     return prefs.getBool("logged_in") ?? false;
-//   }
-
-//   Future<bool> setUserId(String userId) async {
-//     final SharedPreferences prefs = await SharedPreferences.getInstance();
-//     return prefs.setString("user_id", userId);
-//   }
-
-//   Future<String> getUserId() async {
-//     final SharedPreferences prefs = await SharedPreferences.getInstance();
-//     return prefs.getString("user_id") ?? '';
-//   }
-// }

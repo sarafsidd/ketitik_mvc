@@ -1,19 +1,17 @@
-import 'dart:io';
-
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
-import '../../../controller/profile_controller.dart';
 import '../../../models/category.dart';
 import '../../../services/api_service.dart';
+import '../../../utility/PreferenceModel.dart';
 import '../../../utility/application_utils.dart';
 import '../../../utility/colorss.dart';
+import '../../../utility/prefrence_service.dart';
 import '../../homescreen/view/home_screen.dart';
 import '../preferencemodel.dart';
-import '../widget/multi_select_chip.dart';
+import '../widget/grid_item.dart';
 
 class MyPrefrenceScreen extends StatefulWidget {
   List<CategoryName> cateName = [];
@@ -25,46 +23,98 @@ class MyPrefrenceScreen extends StatefulWidget {
 }
 
 class _PrefrenceScreenState extends State<MyPrefrenceScreen> {
-  List<String> selectedCategoryList = [];
-  List<String> selectedCategoryIds = [];
+  List<PreferenceModelSve> itemList = [];
+  List<PreferenceModelSve> selectedList = [];
+  List<String> selectedStrList = [];
+  PrefrenceService prefrenceService = PrefrenceService();
+
   List<Preference> allList = [];
   final APIService _apiService = APIService();
+
   var deviceId = "";
-  ProfileController profileController = ProfileController();
-  List<Preference> categoryList = [];
-  List<String> list = [];
 
   @override
   void initState() {
     super.initState();
-    profileController.getUserData();
-    deviceId = getDeviceId();
-    getSavedList();
+    getData();
   }
 
-  String getDeviceId() {
-    _getId().then((id) {
-      deviceId = id!;
-    });
-    return deviceId;
-  }
-
-  getSavedList() {
+  getSelectedData() {
     for (int i = 0; i < widget.cateName.length; i++) {
-      list.add(widget.cateName[i].categories);
+      print("Selected ONly ${widget.cateName[i].categories}");
     }
   }
 
-  Future<String?> _getId() async {
-    var deviceInfo = DeviceInfoPlugin();
-    if (Platform.isIOS) {
-      // import 'dart:io'
-      var iosDeviceInfo = await deviceInfo.iosInfo;
-      return iosDeviceInfo.identifierForVendor; // Unique ID on iOS
-    } else {
-      var androidDeviceInfo = await deviceInfo.androidInfo;
-      return androidDeviceInfo.androidId; // Unique ID on Android
+  getData() async {
+    deviceId = await ApplicationUtils.getDeviceDetails();
+  }
+
+  TopBar() {
+    return Container(
+        padding: EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+              colors: [
+                MyColors.themeColor,
+                MyColors.themeColor,
+              ],
+              begin: const FractionalOffset(0.0, 0.0),
+              end: const FractionalOffset(1.0, 0.0),
+              stops: [0.0, 1.0]),
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(40),
+            bottomRight: Radius.circular(40),
+          ),
+          border: Border.all(
+            width: 1,
+            color: MyColors.themeColor,
+            style: BorderStyle.solid,
+          ),
+        ),
+        child: Row(
+          children: [
+            InkWell(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Image.asset(
+                  "assets/images/left.png",
+                  width: 25,
+                  height: 25,
+                ),
+              ),
+              onTap: () => {ApplicationUtils.onBackPress(context)},
+            ),
+            const SizedBox(
+              width: 15,
+            ),
+            const Align(
+              alignment: Alignment.topCenter,
+              child: Text(
+                "My Saved Preferences",
+                style: TextStyle(
+                    fontSize: 15,
+                    fontFamily: "Montserrat",
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ));
+  }
+
+  bindSavedData() {
+    for (int i = 0; i < widget.cateName.length; i++) {
+      selectedStrList.add(widget.cateName[i].id.toString());
     }
+  }
+
+  bool getSavedStatus(String categoryName) {
+    bool isSaved = false;
+    for (int i = 0; i < widget.cateName.length; i++) {
+      if (categoryName == widget.cateName[i].categories) {
+        isSaved = true;
+      }
+    }
+    return isSaved;
   }
 
   @override
@@ -75,17 +125,9 @@ class _PrefrenceScreenState extends State<MyPrefrenceScreen> {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 20, top: 30),
-              child: Text(
-                'Update Preferences',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+            TopBar(),
+            SizedBox(
+              height: 20,
             ),
             //showContent(),
             Padding(
@@ -93,25 +135,41 @@ class _PrefrenceScreenState extends State<MyPrefrenceScreen> {
               child: FutureBuilder<List<Preference>>(
                   future: _apiService.getCategory(),
                   builder: (context, snapshot) {
-                    var category = snapshot.data;
                     if (!snapshot.hasData) {
                       return const Center(
                         child: CircularProgressIndicator(),
                       );
                     }
-
                     allList = snapshot.data!;
-                    return MultiSelectChipEdit(
-                      category!,
-                      onSelectionChanged: (selectedList) {
-                        setState(
-                          () {
-                            selectedCategoryList.addAll(selectedList);
-                          },
-                        );
-                      },
-                      selectedCat: list,
-                    );
+                    getDataTotal(allList);
+                    return GridView.builder(
+                        shrinkWrap: true,
+                        itemCount: itemList.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 5,
+                            mainAxisSpacing: 5),
+                        itemBuilder: (context, index) {
+                          return GridItem(
+                              item: itemList[index],
+                              isSelectedVal:
+                                  getSavedStatus(itemList[index].name),
+                              isSelected: (bool value) {
+                                setState(() {
+                                  if (value) {
+                                    selectedList.add(itemList[index]);
+                                    selectedStrList.add(itemList[index].id);
+                                  } else {
+                                    selectedList.remove(itemList[index]);
+                                    selectedStrList.remove(itemList[index].id);
+                                  }
+                                });
+                                print(
+                                    "------ selected ${selectedList.length.toString()}");
+                                print("$index : $value");
+                              },
+                              key: Key(itemList[index].id.toString()));
+                        });
                   }),
             ),
             const Spacer(),
@@ -133,23 +191,22 @@ class _PrefrenceScreenState extends State<MyPrefrenceScreen> {
                   ),
                 ),
                 onPressed: () async {
-                  var listIds = getSelectedChipId();
+                  bindSavedData();
+                  //getDataSelected();
                   ApplicationUtils.openDialog();
                   var selectedCat = await _apiService.saveUserPrefrence(
-                      listIds.toString(),
-                      deviceId,
-                      profileController.authToken.value);
+                      selectedStrList.toString(), deviceId);
                   print("deviceId ${deviceId.toString()}");
-                  print("selectedCat :${selectedCategoryIds.toString()}");
+                  print("selectedCat :${selectedStrList.toString()}");
                   if (selectedCat["status"] == true) {
-                    selectedCategoryIds.clear();
+                    selectedStrList.clear();
                     ApplicationUtils.closeDialog();
                     Get.to(
-                      () =>  MyHomePage.withA(),
+                      () => MyHomePage.withA(),
                     );
                   } else {
                     ApplicationUtils.closeDialog();
-                    selectedCategoryIds.clear();
+                    selectedStrList.clear();
                     Get.snackbar('Error', 'Something Went Wrong');
                   }
                 },
@@ -161,19 +218,20 @@ class _PrefrenceScreenState extends State<MyPrefrenceScreen> {
     );
   }
 
-  List<String> getSelectedChipId() {
-    for (int i = 0; i < selectedCategoryList.length; i++) {
-      String selectedItem = selectedCategoryList[i];
-      for (int j = 0; j < allList.length; j++) {
-        Preference AllItem = allList[j];
-        if (AllItem.categories == selectedItem) {
-          if (!selectedCategoryIds.contains(AllItem.id)) {
-            selectedCategoryIds.add(AllItem.id.toString());
-          }
-        }
-      }
+  getDataSelected() {
+    for (int i = 0; i < selectedList.length; i++) {
+      selectedList.add(selectedList[i]);
     }
-    print("Last selected one ${selectedCategoryIds.toString()}");
-    return selectedCategoryIds;
+  }
+
+  getDataTotal(List<Preference> list) {
+    itemList.clear();
+    for (int i = 0; i < list.length; i++) {
+      Preference pref = list[i];
+      itemList.add(PreferenceModelSve("assets/images/gradyellotile.jpg",
+          pref.categories.toString(), pref.id.toString()));
+      print("-----------${itemList[i].name}");
+    }
+    print("${itemList.length.toString()}");
   }
 }

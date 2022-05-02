@@ -13,7 +13,6 @@ class SearchController extends GetxController {
   void onInit() async {
     super.onInit();
     getSearchNews();
-    apiService.getDataArticles();
   }
 
   Future<List<DataArticle>?> getSearchNews({String? query}) async {

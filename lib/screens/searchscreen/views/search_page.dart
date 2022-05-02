@@ -225,18 +225,6 @@ class _SearchPageState extends State<SearchPage> {
                     borderRadius: BorderRadius.circular(15.0),
                     child: getCacheImage(dataArticle.image! ??
                         "http://placeimg.com/640/480/any")),
-                /*FadeInImage.assetNetwork(
-                      height: 230,
-                      image: dataArticle.image! ??
-                          "http://placeimg.com/640/480/any",
-                      imageErrorBuilder: (context, error, stackTrace) {
-                        return Image.asset('assets/images/dummy_news.jpg',
-                            fit: BoxFit.fitWidth);
-                      },
-                      placeholder: 'assets/images/dummy_news.jpg',
-                      // your assets image path
-                      fit: BoxFit.cover,
-                    )),*/
                 const SizedBox(
                   height: 10,
                 ),

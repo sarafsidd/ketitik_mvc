@@ -25,21 +25,6 @@ class NewsItem extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(
-            height: 15,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0),
-            child: Text(
-              title!,
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 17,
-                fontFamily: 'Montserrat',
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const SizedBox(
             height: 10,
           ),
           Padding(
@@ -61,6 +46,21 @@ class NewsItem extends StatelessWidget {
           ),
           const SizedBox(
             height: 10,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: Text(
+              title!,
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 17,
+                fontFamily: 'Montserrat',
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 5,
           ),
           Card(
               clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -107,7 +107,7 @@ class NewsItem extends StatelessWidget {
                             size: 22, color: Colors.black),
                         onPressed: () {},
                       ),*/
-                  author == "---"
+                  author == "---" || author == null || author == "null"
                       ? Text("")
                       : Row(
                           children: [
@@ -127,24 +127,26 @@ class NewsItem extends StatelessWidget {
                             ),
                           ],
                         ),
-                  Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Center(
-                          child: Text("Source : ${source!}",
-                              textAlign: TextAlign.start,
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 12,
-                                fontFamily: 'Montserrat',
-                                fontWeight: FontWeight.normal,
+                  source == "---" || source == null || source == "null"
+                      ? Text("")
+                      : Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Center(
+                                child: Text("Source : ${source!}",
+                                    textAlign: TextAlign.start,
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12,
+                                      fontFamily: 'Montserrat',
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                    overflow: TextOverflow.clip),
                               ),
-                              overflow: TextOverflow.clip),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
                   Visibility(
                     visible: link == true ? true : false,
                     child: Row(

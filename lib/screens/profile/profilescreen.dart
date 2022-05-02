@@ -3,8 +3,6 @@ import 'package:get/get.dart';
 import 'package:ketitik/controller/profile_controller.dart';
 import 'package:ketitik/screens/auth/controller/login_controller.dart';
 import 'package:ketitik/screens/auth/views/login_screen.dart';
-import 'package:ketitik/screens/bookmark/binding/bookmarkbinding.dart';
-import 'package:ketitik/screens/bookmark/bookmarklist.dart';
 import 'package:ketitik/screens/prefrences/preferencemodel.dart';
 import 'package:ketitik/screens/prefrences/views/edit_prefrence_screen.dart';
 import 'package:ketitik/services/api_service.dart';
@@ -36,27 +34,31 @@ class _ProfilePageState extends State<ProfilePage> {
   APIService _apiService = APIService();
   List<CategoryName> savedList = [];
   String path = "";
+  String deviceId = "";
 
   @override
   void initState() {
     super.initState();
     profileController.getUserData();
-
+    getDeviceData();
     path = ApplicationUtils.getAvatarImage(
         profileController.avatarPos.value.toString());
   }
 
+  getDeviceData() async {
+    deviceId = await ApplicationUtils.getDeviceDetails();
+  }
+
   getSelectedData() async {
     ApplicationUtils.openDialog();
-
-    savedList =
-    await _apiService.getMyPreference(profileController.authToken.value);
+    print("profiledata $deviceId");
+    savedList = await _apiService.getMyPreference(deviceId);
 
     ApplicationUtils.closeDialog();
-    print("${savedList.length}  ${savedList[0].categories}");
+    //print("${savedList.length}  ${savedList[0].categories}");
     Get.to(() => MyPrefrenceScreen(
-      cateName: savedList,
-    ));
+          cateName: savedList,
+        ));
   }
 
   Stack profileTopContainer() {
@@ -83,11 +85,15 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Align(
                 alignment: Alignment.topCenter,
                 child: Row(
+                  //ApplicationUtils.onBackPress(context)
                   children: [
-                    Image.asset(
-                      "assets/images/left.png",
-                      height: 25,
-                      width: 25,
+                    InkWell(
+                      child: Image.asset(
+                        "assets/images/left.png",
+                        height: 25,
+                        width: 25,
+                      ),
+                      onTap: () => {ApplicationUtils.onBackPress(context)},
                     ),
                     const SizedBox(
                       width: 125,
@@ -95,7 +101,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     const Text(
                       "My Profile",
                       style:
-                      TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                     Spacer(),
                     InkWell(
@@ -107,15 +113,15 @@ class _ProfilePageState extends State<ProfilePage> {
                               fontWeight: FontWeight.bold),
                         ),
                         onTap: () => {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EditProfilePage(),
-                            ),
-                          ).then((value) {
-                            profileController.getUserData();
-                          })
-                        }),
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EditProfilePage(),
+                                ),
+                              ).then((value) {
+                                profileController.getUserData();
+                              })
+                            }),
                   ],
                 )),
           ),
@@ -125,7 +131,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   padding: const EdgeInsets.all(10),
                   child: Column(children: [
                     Obx(
-                          () => CircleAvatar(
+                      () => CircleAvatar(
                         radius: 50,
                         backgroundColor: Colors.black,
                         child: CircleAvatar(
@@ -143,8 +149,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Obx(
-                                () => Text(
-                              profileController.name.value ?? "---",
+                            () => Text(
+                              profileController.name.value,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Colors.black,
@@ -158,8 +164,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             height: 5,
                           ),
                           Obx(
-                                () => Text(
-                              profileController.email.value ?? "---",
+                            () => Text(
+                              profileController.email.value,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Colors.black,
@@ -209,7 +215,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   height: 25,
                 ),
               ),
-              onTap: () => {Navigator.pop(context)},
+              onTap: () => {ApplicationUtils.onBackPress(context)},
             ),
             const SizedBox(
               width: 15,
@@ -232,167 +238,241 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-          body: Obx(
-                () => Column(
-              children: [
-                profileController.isLoggedIn.value
-                    ? profileTopContainer()
-                    : Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    TopBar(),
-                    const Padding(
-                      padding: EdgeInsets.all(15.0),
-                      child: Text(
-                        'Account',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
+      body: Obx(
+        () => Column(
+          children: [
+            profileController.isLoggedIn.value
+                ? profileTopContainer()
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TopBar(),
+                      const Padding(
+                        padding: EdgeInsets.all(15.0),
+                        child: Text(
+                          'Account',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 15, bottom: 15),
-                      child: Text(
-                        'Login to view your profile',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400,
+                      const Padding(
+                        padding: EdgeInsets.only(left: 15, bottom: 15),
+                        child: Text(
+                          'Login to view your profile',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
                       ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 15, bottom: 15),
-                      child: Text(
-                        'By clicking Log in, you agree with our Terms. Learn how we process your data in our Privacy Policy and Cookies Policy.',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400,
+                      const Padding(
+                        padding: EdgeInsets.only(left: 15, bottom: 15),
+                        child: Text(
+                          'By clicking Log in, you agree with our Terms. Learn how we process your data in our Privacy Policy and Cookies Policy.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
                       ),
-                    ),
-                    Align(
-                      alignment: Alignment.center,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(horizontal: 100),
-                            onPrimary: Colors.black,
-                            primary: Theme.of(context).primaryColor),
-                        onPressed: () {
-                          Get.to(
-                                () => const LoginScreen(),
-                          );
-                        },
-                        child: const Text('Continue'),
+                      Align(
+                        alignment: Alignment.center,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(horizontal: 100),
+                              onPrimary: Colors.black,
+                              primary: Theme.of(context).primaryColor),
+                          onPressed: () {
+                            Get.to(
+                              () => const LoginScreen(),
+                            );
+                          },
+                          child: const Text('Continue'),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                profileController.isLoggedIn.value
-                    ? const SizedBox(
-                  height: 110,
-                )
-                    : const SizedBox(
-                  height: 30,
-                ),
-                Divider(
-                  height: 1,
-                  color: MyColors.themeBlackTrans,
-                ),
-                ListTile(
-                  iconColor: MyColors.blankTrans,
-                  leading: const Icon(Icons.notifications),
-                  title: const Text(
-                    'My Saved Bookmarks',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 13,
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.bold,
-                    ),
+                    ],
                   ),
-                  onTap: () => Get.toNamed(RoutingNameConstants.BOOKMARK_SCREEN_ROUTE),
-                ),
-                Divider(
-                  height: 1,
-                ),
-                ListTile(
-                  iconColor: MyColors.blankTrans,
-                  leading: const Icon(Icons.workspaces_outline),
-                  title: const Text(
-                    'My Saved Preferences',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 13,
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.bold,
-                    ),
+            profileController.isLoggedIn.value
+                ? const SizedBox(
+                    height: 110,
+                  )
+                : const SizedBox(
+                    height: 30,
                   ),
-                  onTap: () => getSelectedData(),
-                ),
-                Divider(
-                  height: 1,
-                ),
-                ListTile(
-                  iconColor: MyColors.blankTrans,
-                  leading: const Icon(Icons.list),
-                  title: const Text(
-                    'Terms and Conditions',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 13,
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  onTap: () =>
-                      Navigator.of(context).push(TermsPrivacyRoute("terms")),
-                ),
-                const Divider(
-                  height: 2,
-                ),
-                ListTile(
-                  iconColor: MyColors.blankTrans,
-                  leading: const Icon(Icons.list),
-                  title: const Text(
-                    'Privacy Policy',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 13,
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  onTap: () =>
-                      Navigator.of(context).push(TermsPrivacyRoute("privacy")),
-                ),
-                const Divider(
-                  height: 1,
-                ),
-                profileController.isLoggedIn.value
-                    ? ListTile(
-                    iconColor: MyColors.blankTrans,
-                    leading: const Icon(Icons.logout),
-                    title: const Text(
-                      'Logout',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 13,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    onTap: () => logout())
-                    : Text(""),
-                const Divider(
-                  height: 2,
-                ),
-                const Spacer(),
-              ],
+            Divider(
+              height: 2,
+              color: MyColors.themeBlackTrans,
+            ),
+            profileController.isLoggedIn.value
+                ? getAuthMenuView()
+                : getMenuView(),
+          ],
+        ),
+      ),
+    ));
+  }
+
+  getMenuView() {
+    return Column(
+      children: [
+        ListTile(
+          iconColor: MyColors.blankTrans,
+          leading: const Icon(Icons.bookmarks_outlined),
+          title: const Text(
+            'My Bookmarks',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 13,
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.bold,
             ),
           ),
-        ));
+          onTap: () => Get.toNamed(RoutingNameConstants.BOOKMARK_SCREEN_ROUTE),
+        ),
+        const Divider(
+          height: 2,
+        ),
+        ListTile(
+          iconColor: MyColors.blankTrans,
+          leading: const Icon(Icons.workspaces_outline),
+          title: const Text(
+            'My Saved Preferences',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 13,
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          onTap: () => getSelectedData(),
+        ),
+        const Divider(
+          height: 2,
+        ),
+        ListTile(
+          iconColor: MyColors.blankTrans,
+          leading: const Icon(Icons.list),
+          title: const Text(
+            'Terms and Conditions',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 13,
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          onTap: () => Navigator.of(context).push(TermsPrivacyRoute("terms")),
+        ),
+        const Divider(
+          height: 2,
+        ),
+        ListTile(
+          iconColor: MyColors.blankTrans,
+          leading: const Icon(Icons.list),
+          title: const Text(
+            'Privacy Policy',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 13,
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          onTap: () => Navigator.of(context).push(TermsPrivacyRoute("privacy")),
+        ),
+      ],
+    );
+  }
+
+  getAuthMenuView() {
+    return Column(
+      children: [
+        ListTile(
+          iconColor: MyColors.blankTrans,
+          leading: const Icon(Icons.bookmarks_outlined),
+          title: const Text(
+            'My Bookmarks',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 13,
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          onTap: () => Get.toNamed(RoutingNameConstants.BOOKMARK_SCREEN_ROUTE),
+        ),
+        const Divider(
+          height: 2,
+        ),
+        ListTile(
+          iconColor: MyColors.blankTrans,
+          leading: const Icon(Icons.workspaces_outline),
+          title: const Text(
+            'My Saved Preferences',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 13,
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          onTap: () => getSelectedData(),
+        ),
+        const Divider(
+          height: 2,
+        ),
+        ListTile(
+          iconColor: MyColors.blankTrans,
+          leading: const Icon(Icons.list),
+          title: const Text(
+            'Terms and Conditions',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 13,
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          onTap: () => Navigator.of(context).push(TermsPrivacyRoute("terms")),
+        ),
+        const Divider(
+          height: 2,
+        ),
+        ListTile(
+          iconColor: MyColors.blankTrans,
+          leading: const Icon(Icons.list),
+          title: const Text(
+            'Privacy Policy',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 13,
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          onTap: () => Navigator.of(context).push(TermsPrivacyRoute("privacy")),
+        ),
+        const Divider(
+          height: 2,
+        ),
+        ListTile(
+            iconColor: MyColors.blankTrans,
+            leading: const Icon(Icons.logout),
+            title: const Text(
+              'Logout',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 13,
+                fontFamily: 'Montserrat',
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            onTap: () => logout())
+      ],
+    );
   }
 
   logout() async {
@@ -400,7 +480,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     await preferences.clear().then((value) => Navigator.of(context)
         .pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => LoginScreen()),
+            MaterialPageRoute(builder: (context) => LoginScreen()),
             (Route<dynamic> route) => false));
     //Get.off(LoginScreen());
   }

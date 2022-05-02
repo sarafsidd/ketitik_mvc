@@ -2,10 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:ketitik/screens/bookmark/bookmarkcontroller.dart';
 
+import '../../utility/application_utils.dart';
 import '../../utility/colorss.dart';
+import '../searchscreen/views/detail_page_bookmark.dart';
 
 class BookMarkPage extends StatefulWidget {
   const BookMarkPage({Key? key}) : super(key: key);
@@ -16,14 +20,20 @@ class BookMarkPage extends StatefulWidget {
 
 class _BookMarkPageState extends State<BookMarkPage> {
   BookmarkController bookmarkController = BookmarkController();
+  String deviceId = "";
 
   @override
   void initState() {
     super.initState();
+    getDeviceData();
     bookmarkController.getUserData();
     Timer(Duration(seconds: 1), () {
-      bookmarkController.getDataBookMark();
+      bookmarkController.getDataBookMark(deviceId);
     });
+  }
+
+  getDeviceData() async {
+    deviceId = await ApplicationUtils.getDeviceDetails();
   }
 
   @override
@@ -44,19 +54,22 @@ class _BookMarkPageState extends State<BookMarkPage> {
                 Stack(
                   children: [
                     Obx(
-                          () => ListView.builder(
+                      () => ListView.builder(
                           itemCount: bookmarkController.listBookmark.length,
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemBuilder: (_, i) {
                             return InkWell(
-                                onTap: () {},
+                                onTap: () {
+                                  Get.to(BookmarkDetailPage(
+                                      bookmarkController.listBookmark[i]));
+                                },
                                 child: Container(
                                     margin: const EdgeInsets.all(5.0),
                                     padding: const EdgeInsets.all(5.0),
                                     child: Column(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Align(
                                             alignment: Alignment.centerLeft,
@@ -71,7 +84,7 @@ class _BookMarkPageState extends State<BookMarkPage> {
                                                   maxLines: 2,
                                                   softWrap: true,
                                                   style:
-                                                  TextStyle(fontSize: 14),
+                                                      TextStyle(fontSize: 14),
                                                 ))),
                                         Align(
                                             alignment: Alignment.centerLeft,
@@ -82,10 +95,10 @@ class _BookMarkPageState extends State<BookMarkPage> {
                                                   top: 2.0,
                                                   bottom: 2.0),
                                               child: Text(
-                                                "${bookmarkController.listBookmark[i].url}",
+                                                "Source : ${bookmarkController.listBookmark[i].source}",
                                                 maxLines: 2,
                                                 softWrap: true,
-                                                style: TextStyle(fontSize: 10),
+                                                style: TextStyle(fontSize: 12),
                                               ),
                                             )),
                                         Divider()
@@ -137,12 +150,12 @@ class _BookMarkPageState extends State<BookMarkPage> {
             onTap: () => {Navigator.pop(context)},
           ),
           const SizedBox(
-            width: 70,
+            width: 95,
           ),
           const Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              "My Saved Bookmarks",
+              "My Bookmarks",
               style: TextStyle(
                   fontSize: 15,
                   fontFamily: "Montserrat",

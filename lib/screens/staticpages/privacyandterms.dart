@@ -128,10 +128,13 @@ $dataStatic
                   alignment: Alignment.topCenter,
                   child: Row(
                     children: [
-                      Image.asset(
-                        "assets/images/left.png",
-                        height: 25,
-                        width: 25,
+                      InkWell(
+                        child: Image.asset(
+                          "assets/images/left.png",
+                          height: 25,
+                          width: 25,
+                        ),
+                        onTap: () => Navigator.pop(context),
                       ),
                       const SizedBox(
                         width: 90,

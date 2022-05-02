@@ -23,41 +23,16 @@ class BookmarkController extends GetxController {
     authToken.value = (await _prefrence.getToken().then((value) => value))!;
   }
 
-  Future<List<BookMarkData>> getDataBookMark() async {
+  Future<List<BookMarkData>> getDataBookMark(String deviceId) async {
     getUserData();
     ApplicationUtils.openDialog();
-    listBookmark.value = await apiService.getBookmarkNews(authToken.value);
+    print("deviceId ${deviceId}");
+    listBookmark.value = await apiService.getBookmarkNews(deviceId);
     ApplicationUtils.closeDialog();
     print(" - ${listBookmark.value}");
 
     return listBookmark.value;
   }
-
-  Future<List<BookMarkData>> getDataBookMarkOffline(String authTokenss) async {
-    getUserData();
-    listBookmark.value = await apiService.getBookmarkNews(authTokenss);
-
-    print(" - ${listBookmark.value}");
-
-    return listBookmark.value;
-  }
-
-  bool isPresent(String? newsId) {
-   bool isPresentVal = false;
-   isPresentVal = listBookmark.value.map((item) => item.id).contains(newsId);
-   print("$isPresentVal  ${newsId.toString()}");
-   return isPresentVal;
-  }
-//
-//   addDataStr(String newsId) {
-//     listBookmarkStr.add(newsId);
-//     update();
-//   }
-//
-//   removeDataStr(String newsId) {
-//     listBookmarkStr.remove(newsId);
-//     update();
-//   }
 
   fillStrData() {
     for (int i = 0; i < listBookmark.value.length; i++) {

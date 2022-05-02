@@ -5,7 +5,6 @@ import 'dart:developer';
 import 'package:api_cache_manager/api_cache_manager.dart';
 import 'package:api_cache_manager/models/cache_db_model.dart';
 import 'package:dio/dio.dart';
-import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:ketitik/models/newsdata.dart';
 
@@ -45,13 +44,13 @@ class APIServices {
 
   Future<List<Article>?> getDataArticles() async {
     final client = Dio();
-  // var box = await Hive.openBox<NewsAll>('Newsservice');
+    // var box = await Hive.openBox<NewsAll>('Newsservice');
     try {
       final response = await client.post(newsOrg);
       if (response.statusCode == 200) {
         final news = newsAllFromJson(response.data);
         log("newsdataif : ${news.data}");
-       // box.add(news);
+        // box.add(news);
         return news.data;
       } else {
         log("newsdataelse : ");

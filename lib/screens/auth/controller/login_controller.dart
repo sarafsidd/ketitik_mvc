@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -26,32 +24,13 @@ class LoginController extends GetxController {
   Dio dio = Dio();
   String deviceId = "";
 
-  String getDeviceId() {
-    _getId().then((id) {
-      deviceId = id!;
-    });
-    return deviceId;
-  }
-
-  Future<String?> _getId() async {
-    var deviceInfo = DeviceInfoPlugin();
-    if (Platform.isIOS) {
-      // import 'dart:io'
-      var iosDeviceInfo = await deviceInfo.iosInfo;
-      return iosDeviceInfo.identifierForVendor; // Unique ID on iOS
-    } else {
-      var androidDeviceInfo = await deviceInfo.androidInfo;
-      return androidDeviceInfo.androidId; // Unique ID on Android
-    }
-  }
-
   void signInWithGoogle() async {
     final _prefrence = PrefrenceService();
     try {
       isLoading.value = true;
-      deviceId = getDeviceId();
+      deviceId = await ApplicationUtils.getDeviceDetails();
       googleAcc.value = await googleSignIn.signIn().then((value) async {
-        print(" Value : $value");
+        print("------ Device Id : $deviceId");
         ApplicationUtils.openDialog();
 
         var loginDb = await loginToDB(value!.email, value.id, deviceId);
@@ -134,7 +113,7 @@ class LoginController extends GetxController {
 
   registerToDB(String emailID, String socialID, String name, String deviceID,
       String contactNumber) async {
-    deviceId = getDeviceId();
+    deviceId = await ApplicationUtils.getDeviceDetails();
     final url =
         Uri.parse('http://83.136.219.147/News/public/api/socialregister');
     Map<String, dynamic> mapData = {
@@ -173,7 +152,8 @@ class LoginController extends GetxController {
   }
 
   void facebookLogin() async {
-    LoginResult result = await FacebookAuth.instance.login(permissions: ["email"]);
+    LoginResult result =
+        await FacebookAuth.instance.login(permissions: ["email"]);
     switch (result.status) {
       case LoginStatus.success:
         final AuthCredential fbCredentials =

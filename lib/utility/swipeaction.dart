@@ -5,10 +5,10 @@ import '../screens/profile/profilescreen.dart';
 import '../screens/staticpages/fullnewspage.dart';
 import '../screens/staticpages/privacyandterms.dart';
 
-class ProfilePageRoute extends CupertinoPageRoute {
+/*class ProfilePageRoute extends CupertinoPageRoute {
   ProfilePageRoute()
       : super(builder: (BuildContext context) => const ProfilePage());
-}
+}*/
 
 finishPage(BuildContext context) {
   if (Navigator.canPop(context)) {
@@ -18,14 +18,67 @@ finishPage(BuildContext context) {
   }
 }
 
-class FullPageRoute extends CupertinoPageRoute {
+class ProfilePageRoute extends PageRouteBuilder {
+  ProfilePageRoute()
+      : super(
+          pageBuilder: (
+            BuildContext context,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+          ) =>
+              ProfilePage(),
+          transitionsBuilder: (
+            BuildContext context,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+            Widget child,
+          ) =>
+              SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(-1, 0),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          ),
+        );
+}
+
+class FullPageRoute extends PageRouteBuilder {
+  FullPageRoute(String buildUrl, String newsId)
+      : super(
+          pageBuilder: (
+            BuildContext context,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+          ) =>
+              FullNewsPage(
+            newsId: newsId,
+            fullnewsUrl: buildUrl,
+          ),
+          transitionsBuilder: (
+            BuildContext context,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+            Widget child,
+          ) =>
+              SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(1, 0),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          ),
+        );
+}
+
+/*class FullPageRoute extends CupertinoPageRoute {
   FullPageRoute(String buildUrl, String newsId)
       : super(
             builder: (BuildContext context) => FullNewsPage(
                   newsId: newsId,
                   fullnewsUrl: buildUrl,
                 ));
-}
+}*/
 
 class TermsPrivacyRoute extends CupertinoPageRoute {
   TermsPrivacyRoute(String buildUrl)

@@ -26,8 +26,8 @@ class ProfileController extends GetxController {
     phone.value = (await _prefrence.getPhone())!;
     authToken.value = (await _prefrence.getToken())!;
     isLoggedIn.value = await _prefrence.getLoggedIn();
-    String pathIndex = await _prefrence.getAvatarImage();
-    avatarIndex.value = int.parse(pathIndex);
+    String? pathIndex = await _prefrence.getAvatarImage();
+    avatarIndex.value = int.parse(pathIndex.toString());
 
     avatarPos.value =
         ApplicationUtils.getAvatarImage(avatarIndex.value.toString());
