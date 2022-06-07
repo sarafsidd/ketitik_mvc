@@ -47,6 +47,7 @@ class KetitikModel {
     required this.title,
     required this.newsType,
     required this.trending,
+    required this.uploads_type,
     required this.bookmarks,
   });
 
@@ -55,6 +56,7 @@ class KetitikModel {
   String? url;
   String? image;
   String? country;
+  String? uploads_type;
   String? category;
   String? description;
   int id;
@@ -75,6 +77,7 @@ class KetitikModel {
         title: json["title"],
         newsType: json["news_type"],
         trending: json["trending"],
+        uploads_type: json["uploads_type"],
         bookmarks: json["bookmarks"],
       );
 
@@ -87,6 +90,7 @@ class KetitikModel {
         "category": category,
         "description": description,
         "id": id,
+        "uploads_type": uploads_type,
         "title": title,
         "news_type": newsType,
         "trending": trending,

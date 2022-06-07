@@ -16,27 +16,130 @@ import '../utility/application_utils.dart';
 import '../utility/prefrence_service.dart';
 
 class APIService {
-  final getBookmarkUrl = "http://83.136.219.147/News/public/api/getBookmarks";
-  final addBookmarkUrl = "http://83.136.219.147/News/public/api/addBookmark";
-  final getPreferences = "http://83.136.219.147/News/public/api/getPrefrences";
+  final BaseUrlAws = "http://13.233.68.171/";
+  final specificnews = "http://13.233.68.171/api/specific_news";
+  final infographics = "http://13.233.68.171/api/infographics";
+  final totalSwipesDevice = "http://13.233.68.171/api/swipe_count_devices";
+  final uploadSwipe = "http://13.233.68.171/api/categoryWiseSwipes";
+  final getBookmarkUrl = "http://13.233.68.171/api/getBookmarks";
+  final addBookmarkUrl = "http://13.233.68.171/api/addBookmark";
+  final getPreferences = "http://13.233.68.171/api/getPrefrences";
+  final terms = "http://13.233.68.171/api/terms_condition";
+  final token_update = "http://13.233.68.171/api/add_update_token";
+  final privacy = "http://13.233.68.171/api/privacy";
+  final allnewsurl = "http://13.233.68.171/api/allnews_list";
+  final allnewsurls = Uri.parse("http://13.233.68.171/api/allnews_list");
+  final newsprefrence = Uri.parse("http://13.233.68.171/api/preferencesData");
+  final searchUrl = Uri.parse("http://13.233.68.171/api/search");
+  final updateProfile = "http://13.233.68.171/api/update_profile";
 
-  final terms = "http://83.136.219.147/News/public/api/terms_condition";
-
-  final privacy = "http://83.136.219.147/News/public/api/privacy";
-
-  final allnewsurl = "http://83.136.219.147/News/public/api/allnews_list";
-  final allnewsurls =
-      Uri.parse("http://83.136.219.147/News/public/api/allnews_list");
-  final newsprefrence =
-      Uri.parse("http://83.136.219.147/News/public/api/preferencesData");
-
-  final searchUrl = Uri.parse("http://83.136.219.147/News/public/api/search");
-
-  final readNewsUrl = "http://83.136.219.147/News/public/api/readNews";
   String userToken = "";
   PrefrenceService prefrenceService = PrefrenceService();
 
-  final updateProfile = "http://83.136.219.147/News/public/api/update_profile";
+  Future<String> getSpecificNewsData(String newsId) async {
+    try {
+      var response = await http.post(Uri.parse(specificnews),
+          body: {"id", newsId}).catchError((err) {
+        print('Error : $err');
+      });
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("Specific News :: Success ${response.body.toString()}");
+        return response.body.toString();
+      } else {
+        print("Specific News :: Failed ${response.body.toString()}");
+        return "";
+      }
+    } catch (e) {
+      print("Specific News :: Error ${e.toString()}");
+      return "";
+    }
+  }
+
+  Future<String> getInfoGraphic() async {
+    try {
+      var response =
+          await http.post(Uri.parse(infographics), body: {}).catchError((err) {
+        print('Error : $err');
+      });
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("InfoGraphic Content :: Success ${response.body.toString()}");
+        return response.body.toString();
+      } else {
+        print("InfoGraphic Content :: Failed ${response.body.toString()}");
+        return "";
+      }
+    } catch (e) {
+      print("InfoGraphic Content :: Error ${e.toString()}");
+      return "";
+    }
+  }
+
+  Future<String> updateSwipeDevice(String deviceId) async {
+    try {
+      var response = await http.post(Uri.parse(totalSwipesDevice), body: {
+        "device_id": deviceId,
+      }).catchError((err) {
+        print('Error : $err');
+      });
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("Total News Swipe :: Success ${response.body.toString()}");
+        return response.body.toString();
+      } else {
+        print("Total News Swipe :: Failed ${response.body.toString()}");
+        return "";
+      }
+    } catch (e) {
+      print("Total News Swipe :: Error ${e.toString()}");
+      return "";
+    }
+  }
+
+  Future<String> updateSwipeCategory(String categoryName) async {
+    try {
+      var response = await http.post(Uri.parse(uploadSwipe), body: {
+        "category": categoryName,
+      }).catchError((err) {
+        print('Error : $err');
+      });
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("Category News Update :: Success ${response.body.toString()}");
+        return response.body.toString();
+      } else {
+        print("Category News Update :: Failed ${response.body.toString()}");
+        return "";
+      }
+    } catch (e) {
+      print("Error ${e.toString()}");
+      return "";
+    }
+  }
+
+  Future<String> updateToken(String devide_id, String device_token) async {
+    try {
+      print('Token Params : $device_token ---- $devide_id');
+      var response = await http.post(Uri.parse(token_update), body: {
+        "device_id": devide_id,
+        "device_token": device_token,
+      }).catchError((err) {
+        print('Error : $err');
+      });
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("Token update Success ${response.body.toString()}");
+        return response.body.toString();
+      } else {
+        print("Token update failed ${response.body.toString()}");
+        return "";
+      }
+    } catch (e) {
+      print("Error ${e.toString()}");
+      return "";
+    }
+  }
 
   Future<String> updateUserProfile(
       String name, String email, String phone, String authtoken) async {
@@ -83,25 +186,6 @@ class APIService {
     } catch (e) {
       print("Bookmark Error ${e.toString()}");
       return [];
-    }
-  }
-
-  hitReadNewsApi(String newsId) async {
-    try {
-      var response = await http
-          .post(Uri.parse(readNewsUrl), body: {"id": newsId}).catchError((err) {
-        print('Error : $err');
-      });
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        print("News Id Hit ${response.body.toString()}");
-      } else {
-        print("News Id Hit Failed${response.body.toString()}");
-        return "";
-      }
-    } catch (e) {
-      print("Error ${e.toString()}");
-      return "";
     }
   }
 
@@ -168,7 +252,7 @@ class APIService {
           print('newsdata  : $err');
         });
 
-        print("URl hit");
+        print("URl hit $allnewsurls");
         print(" top stories ${response.body.toString()}");
         if (response.statusCode == 200 || response.statusCode == 201) {
           print(response.body.toString());
@@ -200,15 +284,11 @@ class APIService {
   Future<List<KetitikModel>?> gettrendingArticles(
       {required String filter, String? pageNumber, String? deviceId}) async {
     try {
-      var isCacheExist =
-          await APICacheManager().isAPICacheKeyExist("Trending_Stories");
       print("pageNumber---->$pageNumber");
 
       bool statusInternet = await ApplicationUtils.isOnline();
       if (statusInternet) {
         var response = null;
-        //if (statusLogin) {
-        String tokenAuth = await prefrenceService.getAuthToken();
         response = await http.post(allnewsurls, headers: {}, body: {
           "device_id": deviceId,
           "page": pageNumber.toString(),
@@ -257,6 +337,7 @@ class APIService {
           print('newsdata  : $err');
         });
 
+        print("pageNumber---->${response.body}");
         print("URl hit");
         if (response.statusCode == 200 || response.statusCode == 201) {
           APICacheDBModel cacheDBModel =
@@ -278,6 +359,7 @@ class APIService {
       }
     } catch (e) {
       print("Error ${e.toString()}");
+      return [];
     }
   }
 
@@ -373,8 +455,7 @@ class APIService {
   }
 
   Future<List<Preference>> getCategory() async {
-    final url =
-        Uri.parse('http://83.136.219.147/News/public/api/getAllCategory');
+    final url = Uri.parse('http://13.233.68.171/api/getAllCategory');
 
     try {
       var response = await http.get(url).catchError((err) {
@@ -382,8 +463,8 @@ class APIService {
       });
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final category = categoryFromJson(response.body);
-        print("News : ${category.data}");
+        print('Res Pref : ${response.body}');
+        final category = categoryDataFromJson(response.body);
         return category.data!;
       } else {
         return [];
@@ -394,8 +475,7 @@ class APIService {
   }
 
   saveUserPrefrence(String category, String deviceId) async {
-    final url =
-        Uri.parse('http://83.136.219.147/News/public/api/userPreferences');
+    final url = Uri.parse('http://13.233.68.171/api/userPreferences');
 
     Map<String, dynamic> mapData = {
       "category": category,
@@ -403,12 +483,16 @@ class APIService {
       "device_id": deviceId,
     };
 
-    print("$category --- $deviceId ---- [dl]");
+    print("save preferenceData $category --- $deviceId ---- [dl]");
 
     try {
       var response = await http.post(url, headers: {}, body: mapData);
 
       if (response.statusCode == 200) {
+        var reponseData = json.decode(response.body);
+        print('reponseData : $reponseData');
+        return reponseData;
+      } else {
         var reponseData = json.decode(response.body);
         print('reponseData : $reponseData');
         return reponseData;
@@ -419,11 +503,12 @@ class APIService {
   }
 
   Future<String> addBookmark(
-      String? urlsss, String? news_id, String? title, String authToken) async {
+      String? urlsss, String? news_id, String? title) async {
     String deviceId = await ApplicationUtils.getDeviceDetails();
     String responseStr = "";
     final url = Uri.parse(addBookmarkUrl);
 
+    print('request Add Bookmark : $news_id --- $title ---- $deviceId');
     Map<String, dynamic> mapData = {
       "url": urlsss,
       "device_id": deviceId,

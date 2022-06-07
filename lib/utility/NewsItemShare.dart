@@ -24,25 +24,9 @@ class NewsItemShare extends StatelessWidget {
         children: [
           Column(
             children: [
-              Row(children: [
-                Spacer(),
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: Center(
-                      child: Image.asset(
-                        "assets/images/redketifull.png",
-                        height: 50,
-                        width: 70,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 5,
-                )
-              ]),
+              SizedBox(
+                height: 10,
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15.0),
                 child: ClipRRect(
@@ -112,7 +96,7 @@ class NewsItemShare extends StatelessWidget {
                       const SizedBox(
                         height: 15,
                       ),
-                      author == "---" || author == null || author == "null"
+                      /*author == "---" || author == null || author == "null"
                           ? Text("")
                           : Row(
                               children: [
@@ -131,7 +115,7 @@ class NewsItemShare extends StatelessWidget {
                                   ),
                                 ),
                               ],
-                            ),
+                            ),*/
                       source == "---" || source == null || source == "null"
                           ? Text("")
                           : Row(

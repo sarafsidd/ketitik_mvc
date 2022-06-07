@@ -320,13 +320,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
     var response = await apiService.updateUserProfile(
         name, email, phone, profileController.authToken.value);
 
-    var jsonDta = jsonDecode(response);
-
+    ApplicationUtils.closeDialog();
+    print("${response.toString()}");
+    var jsonDta = json.decode(response);
+    print("${jsonDta.toString()}");
     var status = jsonDta["status"];
     var dataMessage = jsonDta["message"];
     showInSnackBar(dataMessage);
-
-    ApplicationUtils.closeDialog();
 
     if (status == true) {
       print("Saved asdasdas");
@@ -338,6 +338,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
       prefrenceService.setName(name);
       prefrenceService.setEmail(email);
       prefrenceService.setPhone(phone);
+    } else {
+      ApplicationUtils.closeDialog();
     }
   }
 }

@@ -234,82 +234,107 @@ class _ProfilePageState extends State<ProfilePage> {
         ));
   }
 
+/*return GestureDetector(
+                          onHorizontalDragEnd: (DragEndDetails details) {
+                            if (details.primaryVelocity! > 0) {
+                              // User swiped Left
+                              Navigator.of(context).push(ProfilePageRoute());
+                            } else if (details.primaryVelocity! < 0) {
+                              // User swiped Right
+                              Navigator.of(context)
+                                  .push(FullPageRoute(articleFull, newsId));
+                            }
+                          },*/
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-        child: Scaffold(
-      body: Obx(
-        () => Column(
-          children: [
-            profileController.isLoggedIn.value
-                ? profileTopContainer()
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      TopBar(),
-                      const Padding(
-                        padding: EdgeInsets.all(15.0),
-                        child: Text(
-                          'Account',
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
+        child: GestureDetector(
+      onHorizontalDragEnd: (DragEndDetails details) {
+        if (details.primaryVelocity! > 0) {
+          // User swiped Left
+          print("left");
+          // Navigator.of(context).push(ProfilePageRoute());
+        } else if (details.primaryVelocity! < 0) {
+          // User swiped Right
+          print("right");
+          ApplicationUtils.popCurrentPage(context);
+          //Get.off(MyHomePage());
+        }
+      },
+      child: Scaffold(
+        body: Obx(
+          () => Column(
+            children: [
+              profileController.isLoggedIn.value
+                  ? profileTopContainer()
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        TopBar(),
+                        const Padding(
+                          padding: EdgeInsets.all(15.0),
+                          child: Text(
+                            'Account',
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.only(left: 15, bottom: 15),
-                        child: Text(
-                          'Login to view your profile',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w400,
+                        const Padding(
+                          padding: EdgeInsets.only(left: 15, bottom: 15),
+                          child: Text(
+                            'Login to view your profile',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
                         ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.only(left: 15, bottom: 15),
-                        child: Text(
-                          'By clicking Log in, you agree with our Terms. Learn how we process your data in our Privacy Policy and Cookies Policy.',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
+                        const Padding(
+                          padding: EdgeInsets.only(left: 15, bottom: 15),
+                          child: Text(
+                            'By clicking Log in, you agree with our Terms. Learn how we process your data in our Privacy Policy and Cookies Policy.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
                         ),
-                      ),
-                      Align(
-                        alignment: Alignment.center,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(horizontal: 100),
-                              onPrimary: Colors.black,
-                              primary: Theme.of(context).primaryColor),
-                          onPressed: () {
-                            Get.to(
-                              () => const LoginScreen(),
-                            );
-                          },
-                          child: const Text('Continue'),
+                        Align(
+                          alignment: Alignment.center,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                padding: EdgeInsets.symmetric(horizontal: 100),
+                                onPrimary: Colors.black,
+                                primary: Theme.of(context).primaryColor),
+                            onPressed: () {
+                              Get.to(
+                                () => const LoginScreen(),
+                              );
+                            },
+                            child: const Text('Continue'),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-            profileController.isLoggedIn.value
-                ? const SizedBox(
-                    height: 110,
-                  )
-                : const SizedBox(
-                    height: 30,
-                  ),
-            Divider(
-              height: 2,
-              color: MyColors.themeBlackTrans,
-            ),
-            profileController.isLoggedIn.value
-                ? getAuthMenuView()
-                : getMenuView(),
-          ],
+                      ],
+                    ),
+              profileController.isLoggedIn.value
+                  ? const SizedBox(
+                      height: 110,
+                    )
+                  : const SizedBox(
+                      height: 30,
+                    ),
+              Divider(
+                height: 2,
+                color: MyColors.themeBlackTrans,
+              ),
+              profileController.isLoggedIn.value
+                  ? getAuthMenuView()
+                  : getMenuView(),
+            ],
+          ),
         ),
       ),
     ));

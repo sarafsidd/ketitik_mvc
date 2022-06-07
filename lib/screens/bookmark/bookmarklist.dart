@@ -9,7 +9,7 @@ import 'package:ketitik/screens/bookmark/bookmarkcontroller.dart';
 
 import '../../utility/application_utils.dart';
 import '../../utility/colorss.dart';
-import '../searchscreen/views/detail_page_bookmark.dart';
+import 'detail_page_bookmark.dart';
 
 class BookMarkPage extends StatefulWidget {
   const BookMarkPage({Key? key}) : super(key: key);

@@ -1,13 +1,11 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
-import 'package:ketitik/controller/auth_controller.dart';
 import 'package:ketitik/screens/auth/views/register_screen.dart';
 import 'package:ketitik/screens/prefrences/views/prefrence_screen.dart';
 import 'package:ketitik/utility/prefrence_service.dart';
@@ -152,21 +150,62 @@ class LoginController extends GetxController {
   }
 
   void facebookLogin() async {
+    List<String> permissionsReq = const ['email', 'public_profile'];
     LoginResult result =
-        await FacebookAuth.instance.login(permissions: ["email"]);
+        await FacebookAuth.instance.login(permissions: permissionsReq);
     switch (result.status) {
       case LoginStatus.success:
-        final AuthCredential fbCredentials =
-            FacebookAuthProvider.credential(result.accessToken!.token);
-        final userCred = await Get.find<AuthController>()
-            .firebaseAuth
-            .signInWithCredential(fbCredentials);
-        var user = userCred.user;
-        print("User : $user");
+        print("success");
+
+        var graphResponse = await http.get(Uri.parse(
+            'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email&access_token=${result.accessToken!.token}'));
+
+        var profile = json.decode(graphResponse.body);
+        print(profile.toString());
+
+        print("User : ${profile['name']}");
+        var socialId = profile['id'];
+        var userName = profile['name'];
+
+        ApplicationUtils.openDialog();
+        var loginDb = await loginToDB("", socialId, deviceId);
+        isLoggedIn.value = loginDb["status"];
+
+        prefrenceService.setLoggedIn(loginDb["status"]);
+
+        print("FB Acc : ${isLoggedIn.value}");
+        print("FB Acc : $userName");
+
+        print("loginDb: $loginDb");
+
+        if (loginDb['status'] == true) {
+          final _prefrence = PrefrenceService();
+
+          _prefrence.setName(loginDb['data']['name']);
+          _prefrence.setEmail(loginDb['data']['email']);
+          _prefrence.setPhone(loginDb['data']['contact']);
+          _prefrence.setToken(loginDb['token']);
+
+          ApplicationUtils.closeDialog();
+
+          Get.to(() => PrefrenceScreen());
+        } else {
+          ApplicationUtils.closeDialog();
+
+          print(" Display Name : ${userName}");
+          Get.to(() => RegisterScreen(
+                name: userName,
+                emailID: "",
+                socialID: socialId,
+              ));
+        }
+
         break;
       case LoginStatus.cancelled:
+        print("CANcelled ${result.message}");
         break;
       case LoginStatus.operationInProgress:
+        print("inProgress ${result.message}");
         break;
       default:
         break;

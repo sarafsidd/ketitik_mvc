@@ -228,8 +228,8 @@ class _PrefrenceScreenState extends State<MyPrefrenceScreen> {
     itemList.clear();
     for (int i = 0; i < list.length; i++) {
       Preference pref = list[i];
-      itemList.add(PreferenceModelSve("assets/images/gradyellotile.jpg",
-          pref.categories.toString(), pref.id.toString()));
+      itemList.add(PreferenceModelSve(
+          list[i].thumbImage, pref.categories.toString(), pref.id.toString()));
       print("-----------${itemList[i].name}");
     }
     print("${itemList.length.toString()}");

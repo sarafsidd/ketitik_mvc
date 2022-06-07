@@ -2,9 +2,11 @@
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_share_me/flutter_share_me.dart';
@@ -29,6 +31,9 @@ import '../../../utility/prefrence_service.dart';
 import '../../../utility/swipeaction.dart';
 import '../../profile/profilescreen.dart';
 import '../widgets/news_item.dart';
+import '../widgets/newsimage_item.dart';
+import '../widgets/newsimages_item.dart';
+import '../widgets/newsvideo_item.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key? key}) : super(key: key);
@@ -40,6 +45,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<MyHomePage> {
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+
   int selectedIndex = 0;
   final APIService _apiService = APIService();
   final HomeController homeController = Get.put(HomeController());
@@ -47,6 +54,7 @@ class HomePageState extends State<MyHomePage> {
   ProfileController profileController = ProfileController();
   PrefrenceService prefrenceService = PrefrenceService();
   var articleFull = "";
+  var categoryNameFull = "";
   var articleTitle = "";
   var newsId = "";
   var articleCurrent;
@@ -62,10 +70,21 @@ class HomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    //firebaseCloudMessaging_Listeners();
     homeController.getDeviceData();
+    homeController.getTheInfographicData();
     homeController.getLoggedinStatus();
     homeController.getAllNewsData();
+    getDeviceIdData();
     super.initState();
+  }
+
+  getDeviceIdData() async {
+    deviceId = await homeController.getDeviceIDs();
+
+    String deviceIdController = homeController.deviceId;
+    print("device Id Controller :: $deviceIdController");
+    print("device Id Home :: $deviceId");
   }
 
   getUserToken() {
@@ -103,14 +122,22 @@ class HomePageState extends State<MyHomePage> {
                       );
                     } else if (snapshot.data?.length == 0) {
                       return Container(
-                        height: MediaQuery.of(context).size.height * 0.777,
-                        child: Align(
-                            alignment: Alignment.center,
-                            child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                  MyColors.themeColor),
-                            )),
-                      );
+                          height: MediaQuery.of(context).size.height * 0.777,
+                          child: Align(
+                              alignment: Alignment.center,
+                              child: Column(
+                                children: [
+                                  SizedBox(
+                                    height: 100,
+                                  ),
+                                  Image.asset(
+                                    "assets/images/nonewsss.jpg",
+                                    width: 300,
+                                    height: 300,
+                                  ),
+                                  Text("No News Found")
+                                ],
+                              )));
                     } else {
                       List<KetitikModel>? listOfArticle = snapshot.data;
                       var height = homeController.isVisible.value
@@ -124,8 +151,8 @@ class HomePageState extends State<MyHomePage> {
                               Navigator.of(context).push(ProfilePageRoute());
                             } else if (details.primaryVelocity! < 0) {
                               // User swiped Right
-                              Navigator.of(context)
-                                  .push(FullPageRoute(articleFull, newsId));
+                              Navigator.of(context).push(FullPageRoute(
+                                  categoryNameFull, articleFull, newsId));
                             }
                           },
                           child: CarouselSlider.builder(
@@ -137,20 +164,22 @@ class HomePageState extends State<MyHomePage> {
                                 initialPage: homeController.indexCurrent.value,
                                 viewportFraction: 1.0,
                                 enlargeCenterPage: true,
+                                onPageChanged: (index, reason) {
+                                  print("device id for NewsSwipe :: $deviceId");
+                                  _apiService.updateSwipeDevice(deviceId);
+                                },
                               ),
                               itemCount: listOfArticle?.length,
                               itemBuilder: (BuildContext context, int itemIndex,
                                   int pageViewIndex) {
                                 int? lengthCurrent = listOfArticle?.length;
-
                                 print("ListData $lengthCurrent");
                                 print("ListIndex $itemIndex");
-
                                 var article = listOfArticle![itemIndex];
-
                                 homeController.bookmarkStatus.value =
                                     article.bookmarks!;
 
+                                categoryNameFull = article.category!;
                                 articleFull = article.url!;
                                 articleTitle = article.title!;
                                 newsId = article.id.toString();
@@ -158,7 +187,13 @@ class HomePageState extends State<MyHomePage> {
                                 if (itemIndex == lengthCurrent! - 2) {
                                   homeController.getMoreData(itemIndex);
                                 }
-                                return fullCourosolView(article, itemIndex);
+                                if ((itemIndex + 1) % 3 == 0) {
+                                  homeController.getTheInfographicData();
+                                }
+
+                                return (itemIndex + 1) % 6 == 0
+                                    ? getDataInfo()
+                                    : fullCourosolView(article, itemIndex);
                               }));
                     }
                   },
@@ -170,9 +205,153 @@ class HomePageState extends State<MyHomePage> {
         )));
   }
 
+  Widget getDataInfo() {
+    print(" CustomView :: ${homeController.uploads_type}");
+    print(" CustomView :: ${homeController.multiple_images.toString()}");
+    print(" CustomView :: ${homeController.image}");
+
+    if (homeController.uploads_type == "image") {
+      return getImageOrSlider();
+    } else {
+      return fullVideo();
+    }
+  }
+
+  getImageOrSlider() {
+    List<String> clist = homeController.multiple_images.toString().split(",");
+    if (clist.length > 1) {
+      return fullSlider(homeController.image, clist);
+    } else {
+      return fullImageView(clist[0]);
+    }
+  }
+
+  Widget fullImageView(String imageUrl) {
+    return Stack(children: [
+      Positioned.fill(
+          child: Container(
+        color: Colors.white,
+        child: NewsItemImageFull(
+          title: "article.title",
+          imageUrl: imageUrl,
+          description: "",
+          author: "",
+          source: "",
+          link: false,
+        ),
+      )),
+    ]);
+  }
+
+  Widget fullVideo() {
+    return Stack(children: [
+      Positioned.fill(
+          child: Container(
+        color: Colors.white,
+        child: NewsItemVideo(
+          title: "article.title",
+          imageUrl: "withUrl",
+          description: "",
+          author: "",
+          source: "",
+          link: false,
+        ),
+      )),
+    ]);
+  }
+
+  Widget fullSlider(String imageBack, List<String> sliderImage) {
+    return Stack(children: [
+      Positioned.fill(
+          child: Container(
+        color: Colors.white,
+        child: NewsItemImageSlider(
+          imageUrl: imageBack,
+          description: sliderImage,
+        ),
+      )),
+    ]);
+  }
+
   void showInSnackBar(String value) {
     ScaffoldMessenger.of(context)
         .showSnackBar(new SnackBar(content: new Text(value)));
+  }
+
+  int random(min, max) {
+    return min + Random().nextInt(max - min);
+  }
+
+  fullShareView(KetitikModel article) {
+    String withUrl = "";
+    String image = article.image.toString();
+    String author = article.author.toString();
+    if (author == null || author.contains("nil")) {
+      author = "As per Sources";
+    }
+
+    if (image.startsWith("http")) {
+      withUrl = image;
+    } else {
+      withUrl = "http://83.136.219.147/" + image;
+    }
+
+    return Stack(
+      children: [
+        Positioned.fill(
+            child: Container(
+          color: Colors.white,
+        )),
+        NewsItemShare(
+            title: article.title,
+            imageUrl: image,
+            description: article.description ?? "  ",
+            author: author,
+            source: article.source),
+        Positioned(
+            bottom: 20,
+            left: 0,
+            right: 0,
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 10,
+                ),
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: Center(
+                      child: Image.asset(
+                        "assets/images/appplaystore.png",
+                        height: 80,
+                        width: 150,
+                      ),
+                    ),
+                  ),
+                ),
+                Spacer(),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: Center(
+                      child: Image.asset(
+                        "assets/images/ketwhitezoom.png",
+                        height: 60,
+                        width: 60,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ))
+        /*Positioned.fill(
+            child: Align(
+                alignment: Alignment.bottomCenter,
+                child: )),*/
+      ],
+    );
   }
 
   fullCourosolView(KetitikModel article, int index) {
@@ -196,14 +375,23 @@ class HomePageState extends State<MyHomePage> {
             child: Container(
           color: Colors.white,
         )),
-        NewsItem(
-          title: article.title,
-          imageUrl: withUrl,
-          description: article.description ?? "  ",
-          author: author,
-          source: article.source,
-          link: false,
-        ),
+        article.uploads_type == "video"
+            ? NewsItemVideo(
+                title: article.title,
+                imageUrl: withUrl,
+                description: article.description ?? "  ",
+                author: author,
+                source: article.source,
+                link: false,
+              )
+            : NewsItem(
+                title: article.title,
+                imageUrl: withUrl,
+                description: article.description ?? "  ",
+                author: author,
+                source: article.source,
+                link: false,
+              ),
         Padding(
           padding: const EdgeInsets.only(right: 8.0),
           child: Align(
@@ -218,12 +406,10 @@ class HomePageState extends State<MyHomePage> {
                     child: GestureDetector(
                       onTap: () async {
                         // getUserToken();
-
                         _apiService.addBookmark(
                           article.url,
                           article.id.toString(),
                           article.title,
-                          userToken,
                         );
 
                         homeController.updateValueList(index);
@@ -232,10 +418,9 @@ class HomePageState extends State<MyHomePage> {
                         height: 40,
                         width: 40,
                         decoration: BoxDecoration(
-                            color: Colors.white,
                             borderRadius: BorderRadius.circular(
-                              10,
-                            )),
+                          10,
+                        )),
                         child: Obx(
                           () => Center(
                             child: homeController.bookmarkStatus.value == 0
@@ -246,7 +431,7 @@ class HomePageState extends State<MyHomePage> {
                                   )
                                 : Icon(
                                     Icons.bookmark,
-                                    color: Colors.red,
+                                    color: Colors.black,
                                     size: 25,
                                   ),
                           ),
@@ -262,18 +447,8 @@ class HomePageState extends State<MyHomePage> {
                       ApplicationUtils.openDialog();
                       final imageFile = await screenshotController
                           .captureFromWidget(Container(
-                        color: Colors.white,
-                        child: Column(
-                          children: [
-                            NewsItemShare(
-                                title: article.title,
-                                imageUrl: image,
-                                description: article.description ?? "  ",
-                                author: author,
-                                source: article.source),
-                          ],
-                        ),
-                      ));
+                              color: Colors.white,
+                              child: fullShareView(article)));
 
                       ApplicationUtils.closeDialog();
 
@@ -287,19 +462,18 @@ class HomePageState extends State<MyHomePage> {
                         /// Share Plugin
                         await Share.shareFiles([imagePath.path],
                             text:
-                                "https://play.google.com/store/apps/details?id=com.app.ketitik.ketitik",
+                                "Download keTitik, aplikasi berita Indonesia. Hemat waktu membaca berita dalam 60 kata \n Google Play : https://play.google.com/store/apps/details?id=com.app.ketitik.ketitik",
                             subject:
-                                "https://play.google.com/store/apps/details?id=com.app.ketitik.ketitik");
+                                "Download keTitik, aplikasi berita Indonesia. Hemat waktu membaca berita dalam 60 kata \n Google Play : https://play.google.com/store/apps/details?id=com.app.ketitik.ketitik");
                       }
                     },
                     child: Container(
                       height: 40,
                       width: 40,
                       decoration: BoxDecoration(
-                          color: Colors.white,
                           borderRadius: BorderRadius.circular(
-                            10,
-                          )),
+                        10,
+                      )),
                       child: Center(
                         child: Icon(
                           Customicons.share_1,
@@ -324,10 +498,9 @@ class HomePageState extends State<MyHomePage> {
                       height: 40,
                       width: 40,
                       decoration: BoxDecoration(
-                          color: Colors.white,
                           borderRadius: BorderRadius.circular(
-                            10,
-                          )),
+                        10,
+                      )),
                       child: Obx(
                         () => Center(
                             child: homeController.isLiked.value
@@ -356,7 +529,8 @@ class HomePageState extends State<MyHomePage> {
           alignment: Alignment.bottomCenter,
           child: GestureDetector(
               onTap: () {
-                Navigator.of(context).push(FullPageRoute(articleFull, newsId));
+                Navigator.of(context)
+                    .push(FullPageRoute(categoryNameFull, articleFull, newsId));
               },
               child: Container(
                 height: 50,
@@ -422,51 +596,6 @@ class HomePageState extends State<MyHomePage> {
     ));
   }
 
-  bottomBarGuest() {
-    return GNav(
-      gap: 5,
-      color: Colors.grey[800],
-      activeColor: Colors.black,
-      iconSize: 20,
-      tabBackgroundColor: Colors.white.withOpacity(1.0),
-      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 11),
-      duration: const Duration(milliseconds: 100),
-      tabs: const [
-        GButton(
-          textStyle: TextStyle(
-            fontFamily: "Montserrat",
-            fontWeight: FontWeight.normal,
-          ),
-          icon: Icons.book,
-          text: 'All News',
-        ),
-        GButton(
-          icon: Icons.album,
-          text: 'Top Stories',
-          textStyle: TextStyle(
-            fontFamily: "Montserrat",
-            fontWeight: FontWeight.normal,
-          ),
-        ),
-        GButton(
-          icon: Icons.all_inclusive,
-          text: 'Trending',
-          textStyle: TextStyle(
-            fontFamily: "Montserrat",
-            fontWeight: FontWeight.normal,
-          ),
-        ),
-      ],
-      //selectedIndex: selectedIndex,
-      onTabChange: (index) {
-        setState(() {
-          selectedIndex = index;
-          getTabDataGuest(selectedIndex);
-        });
-      },
-    );
-  }
-
   bottomBarLoggedin() {
     return GNav(
       gap: 5,
@@ -478,12 +607,12 @@ class HomePageState extends State<MyHomePage> {
       duration: const Duration(milliseconds: 100),
       tabs: const [
         GButton(
+          icon: Icons.book,
+          text: 'All News',
           textStyle: TextStyle(
             fontFamily: "Montserrat",
             fontWeight: FontWeight.normal,
           ),
-          icon: Icons.book,
-          text: 'All News',
         ),
         GButton(
           icon: Icons.description,
@@ -510,7 +639,6 @@ class HomePageState extends State<MyHomePage> {
           ),
         ),
       ],
-      //selectedIndex: selectedIndex,
       onTabChange: (index) {
         setState(() {
           selectedIndex = index;
@@ -543,27 +671,6 @@ class HomePageState extends State<MyHomePage> {
           homeController.filter.value = "allNews";
           homeController.getAllNewsData();
         });
-        break;
-    }
-  }
-
-  getTabDataGuest(int selectedIndex) {
-    switch (selectedIndex) {
-      case 0:
-        homeController.filter.value = "allNews";
-        homeController.getAllNewsData();
-        break;
-      case 1:
-        homeController.filter.value = "top";
-        homeController.getTopStoriesData();
-        break;
-      case 2:
-        homeController.filter.value = "trending";
-        homeController.getTrendingData();
-        break;
-      default:
-        homeController.filter.value = "allNews";
-        homeController.getAllNewsData();
         break;
     }
   }
@@ -604,9 +711,9 @@ class HomePageState extends State<MyHomePage> {
               Padding(
                 padding: const EdgeInsets.only(left: 100.0),
                 child: Image.asset(
-                  "assets/images/redketitik.png",
-                  width: 110,
-                  height: 82,
+                  "assets/images/ketsquarezoom.png",
+                  width: 105,
+                  height: 80,
                 ),
               ),
               const Spacer(),
@@ -637,13 +744,88 @@ class HomePageState extends State<MyHomePage> {
             ],
           ),
           const SizedBox(
-            height: 8,
+            height: 10,
           ),
-          /*Obx(() => homeController.isLoggedin.value*/
           bottomBarLoggedin()
-/*              : bottomBarGuest()),*/
         ],
       ),
     );
+  }
+
+  void firebaseCloudMessaging_Listeners() async {
+    print("fbcalled");
+
+    WidgetsBinding.instance?.addPostFrameCallback((duration) async {
+      NotificationSettings settings =
+          await _firebaseMessaging.requestPermission(
+        alert: true,
+        announcement: false,
+        badge: true,
+        carPlay: false,
+        criticalAlert: false,
+        provisional: false,
+        sound: true,
+      );
+
+      print('User granted permission: ${settings.authorizationStatus}');
+
+      // 1. This method call when app in terminated state and you get a notification
+      // when you click on notification app open from terminated state and you can get notification data in this method
+
+      FirebaseMessaging.instance.getInitialMessage().then(
+        (message) {
+          print("FirebaseMessaging.instance.getInitialMessage");
+          if (message != null) {
+            //notificationController.getNotificationList();
+            print("New Notification");
+            // if (message.data['_id'] != null) {
+            //   Navigator.of(context).push(
+            //     MaterialPageRoute(
+            //       builder: (context) => DemoScreen(
+            //         id: message.data['_id'],
+            //       ),
+            //     ),
+            //   );
+            // }
+          }
+        },
+      );
+
+      // 2. This method only call when App in forground it mean app must be opened
+      FirebaseMessaging.onMessage.listen(
+        (message) {
+          print("FirebaseMessaging.onMessage.listen");
+          if (message.notification != null) {
+            //notificationController.getNotificationList();
+            print(message.notification!.title);
+            print(message.notification!.body);
+            print("message.data11 ${message.data}");
+            /*LocalNotificationService.createanddisplaynotification(message);*/
+
+          }
+        },
+      );
+
+      // 3. This method only call when App in background and not terminated(not closed)
+      FirebaseMessaging.onMessageOpenedApp.listen(
+        (message) {
+          // notificationController.getNotificationList();
+          print("FirebaseMessaging.onMessageOpenedApp.listen");
+          if (message.notification != null) {
+            //notificationController.getNotificationList();
+            print(message.notification!.title);
+            print(message.notification!.body);
+            print("message.data22 ${message.data['_id']}");
+          }
+        },
+      );
+
+      _firebaseMessaging.getToken().then((token) {
+        print("firebase token>");
+        // if (token != null) getUserInfoController.saveFcm(token);
+        print(token);
+      });
+    });
+    // if (Platform.isIOS) iOS_Permission();
   }
 }

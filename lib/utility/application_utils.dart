@@ -38,6 +38,14 @@ class ApplicationUtils {
     return avatarPath;
   }
 
+  static popCurrentPage(BuildContext context) {
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    } else {
+      SystemNavigator.pop();
+    }
+  }
+
   static Future<String> getDeviceDetails() async {
     String? identifier;
     final DeviceInfoPlugin deviceInfoPlugin = new DeviceInfoPlugin();

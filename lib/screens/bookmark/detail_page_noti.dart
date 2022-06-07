@@ -2,21 +2,32 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:ketitik/screens/bookmark/modelbookmark.dart';
+import 'package:ketitik/services/api_service.dart';
 import 'package:ketitik/utility/colorss.dart';
 
-import '../../homescreen/widgets/news_item.dart';
+import '../homescreen/widgets/news_item.dart';
 
-class BookmarkDetailPage extends StatefulWidget {
-  final BookMarkData newsData;
+class NotificationDetailPage extends StatefulWidget {
+  final String newsData;
 
-  const BookmarkDetailPage(this.newsData);
+  const NotificationDetailPage(this.newsData);
+
+  //const BookmarkDetailPage.b(this.titleTest);
 
   @override
   _BookmarkDetailPageState createState() => _BookmarkDetailPageState();
 }
 
-class _BookmarkDetailPageState extends State<BookmarkDetailPage> {
+class _BookmarkDetailPageState extends State<NotificationDetailPage> {
+  APIService apiService = APIService();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    apiService.getSpecificNewsData(widget.newsData);
+  }
+
   //  late List NewsData newsData;
   @override
   Widget build(BuildContext context) {
@@ -37,11 +48,11 @@ class _BookmarkDetailPageState extends State<BookmarkDetailPage> {
         body: Container(
           // margin: EdgeInsets.all(15),
           child: NewsItem(
-            title: widget.newsData.title,
-            imageUrl: widget.newsData.image,
-            description: widget.newsData.description ?? "  ",
-            author: widget.newsData.author,
-            source: widget.newsData.source,
+            title: "Notification TITLE",
+            imageUrl: " widget.newsData.image",
+            description: "widget.newsData.description",
+            author: "widget.newsData.author",
+            source: "widget.newsData.source",
             link: false,
           ),
         ));

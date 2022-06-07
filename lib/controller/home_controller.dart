@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:math';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:ketitik/models/ketitiknews.dart';
 import 'package:ketitik/services/api_service.dart';
@@ -19,7 +21,12 @@ class HomeController extends GetxController {
   RxBool isLoggedin = false.obs;
   RxString userToken = "".obs;
   String deviceId = "";
+  String firebaseToken = "";
   RxBool isLiked = false.obs;
+  var multiple_images;
+  var uploads_type;
+  var type;
+  var image;
 
   onTapVisibilty() {
     if (isVisible.value == true) {
@@ -50,6 +57,16 @@ class HomeController extends GetxController {
     list.value.clear();
     pageNumber = 1.obs;
     indexCurrent = 0.obs;
+  }
+
+  getTheInfographicData() async {
+    var response = await _apiService.getInfoGraphic();
+    var data = json.decode(response);
+    var dataRes = data["Data"];
+    multiple_images = dataRes["multiple_images"];
+    uploads_type = dataRes["uploads_type"];
+    type = dataRes["type"];
+    image = dataRes["image"];
   }
 
   Future<List<KetitikModel>> getMyFeedData() async {
@@ -149,7 +166,20 @@ class HomeController extends GetxController {
 
   getDeviceData() async {
     deviceId = await ApplicationUtils.getDeviceDetails();
+    firebaseToken = await getToken();
+    _apiService.updateToken(deviceId, firebaseToken);
     print("---- device $deviceId");
+  }
+
+  Future<String> getDeviceIDs() async {
+    deviceId = await ApplicationUtils.getDeviceDetails();
+    return deviceId;
+  }
+
+  Future<String> getToken() async {
+    String token = (await FirebaseMessaging.instance.getToken())!;
+    print("firebase token : $token");
+    return token;
   }
 
   @override

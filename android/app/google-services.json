@@ -1,36 +1,20 @@
 {
   "project_info": {
-    "project_number": "367313271277",
-    "project_id": "ketitik-18069",
-    "storage_bucket": "ketitik-18069.appspot.com"
+    "project_number": "1009549877952",
+    "project_id": "ketitik-a4e98",
+    "storage_bucket": "ketitik-a4e98.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:367313271277:android:976478f92d8d8a542d8fe4",
+        "mobilesdk_app_id": "1:1009549877952:android:d926a31e70de134593c325",
         "android_client_info": {
           "package_name": "com.app.ketitik.ketitik"
         }
       },
       "oauth_client": [
         {
-          "client_id": "367313271277-6627uitlrbmbfegivlr774rm9ru4qvju.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.app.ketitik.ketitik",
-            "certificate_hash": "54cc9ac71cefdd454793f9102daaa9f13b423ad3"
-          }
-        },
-        {
-          "client_id": "367313271277-mo6h8upbiv4v8llctt5i19hukqqv26gi.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.app.ketitik.ketitik",
-            "certificate_hash": "540d5ee974d88e3e8687a1e7693b561c48df273f"
-          }
-        },
-        {
-          "client_id": "367313271277-rgg1oshlb83006g9k0ktsuh1esb801qq.apps.googleusercontent.com",
+          "client_id": "1009549877952-ia3fhecmm4l2pqj8obf61clbvgfbdgkp.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.app.ketitik.ketitik",
@@ -38,7 +22,7 @@
           }
         },
         {
-          "client_id": "367313271277-tkqc1p1hbi4e1ptuhlmc8valdjs7fako.apps.googleusercontent.com",
+          "client_id": "1009549877952-klcc0evnh2kg9o4n22hgsuh7b2ohg0ga.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.app.ketitik.ketitik",
@@ -46,28 +30,29 @@
           }
         },
         {
-          "client_id": "367313271277-qugvus5mm2ls007ol1clni0lboeod1nm.apps.googleusercontent.com",
+          "client_id": "1009549877952-t8m8o6q196q5u7pahobv669r9m1dlt74.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.ketitik.ketitik",
+            "certificate_hash": "54cc9ac71cefdd454793f9102daaa9f13b423ad3"
+          }
+        },
+        {
+          "client_id": "1009549877952-vje7lme90tk0loi831b57pmglh3p3ob4.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAkEOCFhUaf3RiaA0K0fdk8AHAZAi5eD7Y"
+          "current_key": "AIzaSyBGUyPVuZjrqSkSKy_jiJoGU_96eNNVpro"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "367313271277-qugvus5mm2ls007ol1clni0lboeod1nm.apps.googleusercontent.com",
+              "client_id": "1009549877952-vje7lme90tk0loi831b57pmglh3p3ob4.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "367313271277-qi5g9646opia7jr31cpa09c23njv6rk9.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.app.ketitiknews.untitled"
-              }
             }
           ]
         }

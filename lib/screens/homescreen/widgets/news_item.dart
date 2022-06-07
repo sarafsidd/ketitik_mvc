@@ -84,6 +84,8 @@ class NewsItem extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 10.0),
                       child: Text(
                         description!,
+                        maxLines: 10,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: Colors.black,
                           fontSize: 13,
@@ -107,7 +109,7 @@ class NewsItem extends StatelessWidget {
                             size: 22, color: Colors.black),
                         onPressed: () {},
                       ),*/
-                  author == "---" || author == null || author == "null"
+                  /* author == "---" || author == null || author == "null"
                       ? Text("")
                       : Row(
                           children: [
@@ -126,7 +128,7 @@ class NewsItem extends StatelessWidget {
                               ),
                             ),
                           ],
-                        ),
+                        ),*/
                   source == "---" || source == null || source == "null"
                       ? Text("")
                       : Row(

@@ -45,21 +45,28 @@ class _GridItemState extends State<GridItem> {
       child: Stack(
         children: <Widget>[
           ClipRRect(
-              borderRadius: BorderRadius.circular(50.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [MyColors.themeColorYellow, Colors.white],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                ),
-              )),
+              borderRadius: BorderRadius.circular(10.0),
+              child: Image.network(
+                  "http://13.233.68.171/${widget.item.imageUrl}")),
+          Opacity(
+              opacity: 0.6,
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [MyColors.themeBlackTrans, Colors.black38],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ))),
           Center(
               child: Text(
             widget.item.name.toUpperCase(),
+            textAlign: TextAlign.center,
             style: const TextStyle(
-              color: Colors.black,
+              color: Colors.white,
               fontSize: 12,
               fontFamily: 'Montserrat',
               fontWeight: FontWeight.bold,
@@ -69,10 +76,10 @@ class _GridItemState extends State<GridItem> {
               ? Align(
                   alignment: Alignment.bottomRight,
                   child: Padding(
-                    padding: const EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.all(10.0),
                     child: Icon(
                       Icons.check_circle,
-                      color: Colors.black,
+                      color: Colors.yellow,
                     ),
                   ),
                 )

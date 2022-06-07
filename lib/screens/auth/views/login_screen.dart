@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:get/get.dart';
 import 'package:ketitik/screens/auth/controller/login_controller.dart';
+import 'package:ketitik/utility/colorss.dart';
 import 'package:twitter_login/twitter_login.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -41,10 +42,11 @@ class _LoginScreenState extends State<LoginScreen> {
       //backgroundColor: Theme.of(context).primaryColor,
       body: SafeArea(
         child: Container(
-          decoration: const BoxDecoration(
-              image: DecorationImage(
-                  image: AssetImage("assets/images/ketiback.png"),
-                  fit: BoxFit.cover)),
+          decoration: BoxDecoration(color: MyColors.themeColor
+              /*image: DecorationImage(
+                  //image: AssetImage("assets/images/ketiback.png"),
+                  fit: BoxFit.cover)),*/
+              ),
           padding: const EdgeInsets.all(10),
           width: width,
           height: height,
@@ -72,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 50,
               ),
               Image.asset(
-                'assets/images/redketitik.png',
+                'assets/images/ketsquarezoom.png',
                 width: 200,
                 height: 200,
               ),

@@ -52,9 +52,9 @@ class _SplashScreenState extends State<SplashScreen> {
         width: widthscreen,
         height: heightscreen,
         child: Image.asset(
-          'assets/images/redketitikdot.png',
-          width: 100,
-          height: 100,
+          'assets/images/ketsquarezoom.png',
+          width: 30,
+          height: 30,
         ),
       ),
     );

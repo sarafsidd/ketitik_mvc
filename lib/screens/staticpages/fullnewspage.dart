@@ -1,15 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:ketitik/screens/homescreen/view/home_screen.dart';
 import 'package:ketitik/services/api_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import '../../utility/application_utils.dart';
 import '../../utility/colorss.dart';
 
 class FullNewsPage extends StatefulWidget {
   final String? fullnewsUrl;
   final String newsId;
+  final String categoryName;
 
-  FullNewsPage({Key? key, required this.newsId, required this.fullnewsUrl})
+  FullNewsPage(
+      {Key? key,
+      required this.categoryName,
+      required this.newsId,
+      required this.fullnewsUrl})
       : super(key: key);
 
   @override
@@ -23,55 +31,85 @@ class _FullNewsPageState extends State<FullNewsPage> {
 
   @override
   void initState() {
-    apiService.hitReadNewsApi(widget.newsId);
     super.initState();
+    hitNewsCatgory();
+  }
+
+  hitNewsCatgory() async {
+    String response = await apiService.updateSwipeCategory(widget.categoryName);
+    print("update categoryname :: ${response.toString()}");
   }
 
   @override
   Widget build(BuildContext context) {
     print("news page screen ${widget.fullnewsUrl}");
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: MyColors.themeColor,
-        iconTheme: const IconThemeData(
-          color: Colors.black, //change your color here
-        ),
-        title: const Text(
-          'KeTitik',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 15,
-            fontFamily: 'Montserrat',
-            fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onHorizontalDragEnd: (DragEndDetails details) {
+        if (details.primaryVelocity! > 0) {
+          // User swiped Left
+          print("left");
+          // Navigator.of(context).push(ProfilePageRoute());
+          ApplicationUtils.popCurrentPage(context);
+        } else if (details.primaryVelocity! < 0) {
+          // User swiped Right
+          print("right");
+          //Get.off(MyHomePage());
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: MyColors.themeColor,
+          iconTheme: const IconThemeData(
+            color: Colors.black, //change your color here
           ),
+          title: const Text(
+            'KeTitik',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 15,
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          centerTitle: true,
         ),
-        centerTitle: true,
-      ),
-      body: Stack(
-        children: <Widget>[
-          WebView(
-            key: _key,
-            initialUrl: widget.fullnewsUrl,
-            javascriptMode: JavascriptMode.unrestricted,
-            onProgress: (progress) {
-              if (progress > 60) {
+        body: Stack(
+          children: <Widget>[
+            GestureDetector(onHorizontalDragEnd: (DragEndDetails details) {
+              if (details.primaryVelocity! > 0) {
+                // User swiped Left
+                //Navigator.of(context).push(ProfilePageRoute());
+                Get.off(MyHomePage());
+              } else if (details.primaryVelocity! < 0) {
+                // User swiped Right
+                //Navigator.of(context).push(FullPageRoute(articleFull, newsId));
+
+              }
+            }),
+            WebView(
+              key: _key,
+              initialUrl: widget.fullnewsUrl,
+              javascriptMode: JavascriptMode.unrestricted,
+              onProgress: (progress) {
+                if (progress > 60) {
+                  setState(() {
+                    isLoading = false;
+                  });
+                }
+              },
+              onPageFinished: (finish) {
                 setState(() {
                   isLoading = false;
                 });
-              }
-            },
-            onPageFinished: (finish) {
-              setState(() {
-                isLoading = false;
-              });
-            },
-          ),
-          isLoading
-              ? Center(
-                  child: CircularProgressIndicator(),
-                )
-              : Stack(),
-        ],
+              },
+            ),
+            isLoading
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : Stack(),
+          ],
+        ),
       ),
     );
   }

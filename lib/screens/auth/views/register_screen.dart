@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ketitik/screens/auth/controller/login_controller.dart';
-import 'package:ketitik/screens/prefrences/views/prefrence_screen.dart';
 import 'package:ketitik/utility/application_utils.dart';
+
 import '../../../utility/colorss.dart';
 import '../../../utility/custom_textfield.dart';
 import 'login_screen.dart';
@@ -81,11 +81,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Form(
                 key: _formKey,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     SizedBox(
-                      height: height * 0.4,
-                      child: Image.asset("assets/images/ketitik.png"),
+                      height: height * 0.3,
+                      child: Image.asset(
+                        "assets/images/ketsquarezoom.png",
+                        width: 180,
+                        height: 180,
+                      ),
                     ),
                     CustomTextField(
                       hintText: 'Name',
@@ -135,12 +138,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         return null;
                       },
                     ),
-                    const Spacer(),
+                    SizedBox(
+                      height: 20,
+                    ),
                     ElevatedButton(
                       child: const Text('Register'),
                       style: ElevatedButton.styleFrom(
                         elevation: 6.0,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 16, horizontal: 50),
                         onPrimary: MyColors.themeColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -176,7 +182,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             backgroundColor: Colors.black54,
             colorText: Colors.white);
       } else {
-        Get.to(() => PrefrenceScreen());
+        Get.to(() => LoginScreen());
       }
     }
   }
