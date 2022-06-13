@@ -1,7 +1,6 @@
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:ketitik/screens/bookmark/modelbookmark.dart';
-import 'package:ketitik/utility/application_utils.dart';
 
 import '../../services/api_service.dart';
 import '../../utility/prefrence_service.dart';
@@ -25,10 +24,10 @@ class BookmarkController extends GetxController {
 
   Future<List<BookMarkData>> getDataBookMark(String deviceId) async {
     getUserData();
-    ApplicationUtils.openDialog();
+    //ApplicationUtils.openDialog();
     print("deviceId ${deviceId}");
     listBookmark.value = await apiService.getBookmarkNews(deviceId);
-    ApplicationUtils.closeDialog();
+    //ApplicationUtils.closeDialog();
     print(" - ${listBookmark.value}");
 
     return listBookmark.value;

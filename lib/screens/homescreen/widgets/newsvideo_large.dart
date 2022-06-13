@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
-class NewsItemVideo extends StatefulWidget {
+class NewsItemVideoLarge extends StatefulWidget {
   String? title;
   String? imageUrl;
   String? description;
@@ -9,7 +9,7 @@ class NewsItemVideo extends StatefulWidget {
   String? source;
   bool? link;
 
-  NewsItemVideo({
+  NewsItemVideoLarge({
     Key? key,
     required this.title,
     required this.imageUrl,
@@ -20,27 +20,22 @@ class NewsItemVideo extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<NewsItemVideo> createState() => NewsItemVideoState();
+  State<NewsItemVideoLarge> createState() => NewsItemVideoState();
 }
 
-class NewsItemVideoState extends State<NewsItemVideo> {
+class NewsItemVideoState extends State<NewsItemVideoLarge> {
   late VideoPlayerController _controller;
   late Future<void> _initializeVideoPlayerFuture;
-//
+
   @override
   void initState() {
     super.initState();
 
-    print("Video URL Video View :: ${widget.imageUrl.toString()}");
+    print("Video URL :: ${widget.imageUrl.toString()}");
     _controller = VideoPlayerController.network(
       widget.imageUrl.toString(),
     );
-    _initializeVideoPlayerFuture = _controller.initialize().then((_) {
-      // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
-      setState(() {});
-      // If the video is paused, play it.
-      _controller.play();
-    });
+    _initializeVideoPlayerFuture = _controller.initialize();
     // Use the controller to loop the video.
   }
 
@@ -68,16 +63,12 @@ class NewsItemVideoState extends State<NewsItemVideo> {
                   if (snapshot.connectionState == ConnectionState.done) {
                     return Padding(
                         padding: const EdgeInsets.all(10.0),
-                        child: AspectRatio(
-                          aspectRatio: _controller.value.aspectRatio,
-                          child: VideoPlayer(_controller),
-                        ));
-                    /*child: SizedBox(
-                          height: 550,
+                        child: SizedBox(
+                          height: 250,
                           child: ClipRRect(
                               borderRadius: BorderRadius.circular(15),
                               child: VideoPlayer(_controller)),
-                        ));*/
+                        ));
                   } else {
                     return const Center(
                       child: CircularProgressIndicator(),
@@ -85,9 +76,32 @@ class NewsItemVideoState extends State<NewsItemVideo> {
                   }
                 },
               ),
-              const SizedBox(
-                height: 10,
-              ),
+              Positioned.fill(
+                child: Align(
+                  alignment: Alignment.center,
+                  child: FloatingActionButton(
+                    onPressed: () {
+                      // Wrap the play or pause in a call to `setState`. This ensures the
+                      // correct icon is shown.
+                      setState(() {
+                        // If the video is playing, pause it.
+                        if (_controller.value.isPlaying) {
+                          _controller.pause();
+                        } else {
+                          // If the video is paused, play it.
+                          _controller.play();
+                        }
+                      });
+                    },
+                    // Display the correct icon depending on the state of the player.
+                    child: Icon(
+                      _controller.value.isPlaying
+                          ? Icons.pause
+                          : Icons.play_arrow,
+                    ),
+                  ),
+                ),
+              )
             ],
           ),
         ],

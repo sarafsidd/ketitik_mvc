@@ -11,13 +11,13 @@ class RegisterScreen extends StatefulWidget {
   final String? name;
   final String? emailID;
   final String? socialID;
-  final int? contactNumber;
+  //final int? contactNumber;
   RegisterScreen({
     Key? key,
     this.name,
     this.emailID,
     this.socialID,
-    this.contactNumber,
+    //this.contactNumber,
   }) : super(key: key);
 
   @override
@@ -34,7 +34,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   TextEditingController? _socialController;
 
-  TextEditingController? _contactController;
+  //TextEditingController? _contactController;
 
   bool isTapped = false;
 
@@ -46,12 +46,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _nameController = TextEditingController(text: widget.name);
       _emailController = TextEditingController(text: widget.emailID);
       _socialController = TextEditingController(text: widget.socialID);
-      _contactController = TextEditingController();
+      //_contactController = TextEditingController();
     } else {
       _nameController = TextEditingController();
       _emailController = TextEditingController();
       _socialController = TextEditingController();
-      _contactController = TextEditingController();
+      //_contactController = TextEditingController();
     }
     super.initState();
   }
@@ -61,7 +61,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _nameController!.dispose();
     _emailController!.dispose();
     _socialController!.dispose();
-    _contactController!.dispose();
+    // _contactController!.dispose();
     super.dispose();
   }
 
@@ -126,7 +126,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         return null;
                       },
                     ),
-                    CustomTextField(
+                    /*CustomTextField(
                       hintText: 'Contact Number',
                       controller: _contactController,
                       icon: const Icon(Icons.phone),
@@ -137,7 +137,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         }
                         return null;
                       },
-                    ),
+                    ),*/
                     SizedBox(
                       height: 20,
                     ),
@@ -173,15 +173,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _socialController!.text,
         _nameController!.text,
         'deviceID',
-        _contactController!.text,
+        "",
       );
+      print("Response Register :: $userData");
       ApplicationUtils.closeDialog();
+      var status = userData["status"];
+      var message = userData["message"];
+      // var contact = message["contact"];
+      //["contact"];
+      String statusStr = status.toString();
       if (userData == null) {
         Get.snackbar('Error occured!', "Some Fields are missing",
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.black54,
             colorText: Colors.white);
-      } else {
+      } else if (statusStr == "false") {
+        Get.snackbar('Error occured!', message.toString(),
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.black54,
+            colorText: Colors.white);
+      } else if (statusStr == "true") {
+        Get.snackbar('Congrats', message.toString(),
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.black54,
+            colorText: Colors.white);
         Get.to(() => LoginScreen());
       }
     }

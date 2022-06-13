@@ -1,11 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:ketitik/screens/homescreen/view/home_screen.dart';
 import 'package:ketitik/services/api_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import '../../utility/application_utils.dart';
 import '../../utility/colorss.dart';
 
 class FullNewsPage extends StatefulWidget {
@@ -43,7 +40,7 @@ class _FullNewsPageState extends State<FullNewsPage> {
   @override
   Widget build(BuildContext context) {
     print("news page screen ${widget.fullnewsUrl}");
-    return GestureDetector(
+    /* GestureDetector(
       onHorizontalDragEnd: (DragEndDetails details) {
         if (details.primaryVelocity! > 0) {
           // User swiped Left
@@ -55,61 +52,49 @@ class _FullNewsPageState extends State<FullNewsPage> {
           print("right");
           //Get.off(MyHomePage());
         }
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: MyColors.themeColor,
-          iconTheme: const IconThemeData(
-            color: Colors.black, //change your color here
-          ),
-          title: const Text(
-            'KeTitik',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 15,
-              fontFamily: 'Montserrat',
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          centerTitle: true,
+      },*/
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: MyColors.themeColor,
+        iconTheme: const IconThemeData(
+          color: Colors.black, //change your color here
         ),
-        body: Stack(
-          children: <Widget>[
-            GestureDetector(onHorizontalDragEnd: (DragEndDetails details) {
-              if (details.primaryVelocity! > 0) {
-                // User swiped Left
-                //Navigator.of(context).push(ProfilePageRoute());
-                Get.off(MyHomePage());
-              } else if (details.primaryVelocity! < 0) {
-                // User swiped Right
-                //Navigator.of(context).push(FullPageRoute(articleFull, newsId));
-
-              }
-            }),
-            WebView(
-              key: _key,
-              initialUrl: widget.fullnewsUrl,
-              javascriptMode: JavascriptMode.unrestricted,
-              onProgress: (progress) {
-                if (progress > 60) {
-                  setState(() {
-                    isLoading = false;
-                  });
-                }
-              },
-              onPageFinished: (finish) {
+        title: const Text(
+          'KeTitik',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 15,
+            fontFamily: 'Montserrat',
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: Stack(
+        children: <Widget>[
+          WebView(
+            key: _key,
+            initialUrl: widget.fullnewsUrl,
+            javascriptMode: JavascriptMode.unrestricted,
+            onProgress: (progress) {
+              if (progress > 60) {
                 setState(() {
                   isLoading = false;
                 });
-              },
-            ),
-            isLoading
-                ? Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : Stack(),
-          ],
-        ),
+              }
+            },
+            onPageFinished: (finish) {
+              setState(() {
+                isLoading = false;
+              });
+            },
+          ),
+          isLoading
+              ? Center(
+                  child: CircularProgressIndicator(),
+                )
+              : Stack(),
+        ],
       ),
     );
   }

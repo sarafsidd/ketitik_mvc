@@ -23,6 +23,7 @@ class HomeController extends GetxController {
   String deviceId = "";
   String firebaseToken = "";
   RxBool isLiked = false.obs;
+  RxBool isTutorialsShow = true.obs;
   var multiple_images;
   var uploads_type;
   var type;
@@ -33,6 +34,14 @@ class HomeController extends GetxController {
       isVisible.value = false;
     } else {
       isVisible.value = true;
+    }
+  }
+
+  onCrossClickCross() {
+    if (isTutorialsShow.value == true) {
+      isTutorialsShow.value = false;
+    } else {
+      isTutorialsShow.value = true;
     }
   }
 
@@ -76,7 +85,7 @@ class HomeController extends GetxController {
         filter: "feeds",
         pageNumber: pageNumber.value.toString(),
         deviceId: deviceId))!;
-    pageNumber.value = pageNumber.value + 1;
+    //pageNumber.value = pageNumber.value + 1;
 
     return list.value;
   }
@@ -89,7 +98,7 @@ class HomeController extends GetxController {
         pageNumber: pageNumber.value.toString(),
         deviceId: deviceId))!;
 
-    pageNumber.value = pageNumber.value + 1;
+    //pageNumber.value = pageNumber.value + 1;
 
     print("ListData Top $pageNumber ${list.value.length}");
 
@@ -120,7 +129,7 @@ class HomeController extends GetxController {
         pageNumber: pageNumber.value.toString(),
         deviceId: deviceId))!;
 
-    pageNumber.value = pageNumber.value + 1;
+    //pageNumber.value = pageNumber.value + 1;
 
     print("ListData Trending $pageNumber ${list.value.length}");
 
@@ -128,8 +137,8 @@ class HomeController extends GetxController {
   }
 
   Future<List<KetitikModel>> getUpdatedList() async {
-    List<KetitikModel> newsUpdated = shuffle(list.value);
-    return newsUpdated;
+    //List<KetitikModel> newsUpdated = shuffle(list.value);
+    return list.value;
   }
 
   Future<List<KetitikModel>> getAllNewsData() async {
@@ -140,7 +149,7 @@ class HomeController extends GetxController {
         pageNumber: pageNumber.value.toString(),
         deviceId: deviceId))!;
 
-    pageNumber.value = pageNumber.value + 1;
+    //pageNumber.value = pageNumber.value + 1;
     print("ListData All deviceToken $deviceId");
 
     return list.value;

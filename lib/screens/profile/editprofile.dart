@@ -28,23 +28,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
   PrefrenceService prefrenceService = PrefrenceService();
   CustomController? _nameController;
   CustomController? _emailController;
-  CustomController? _contactController;
+  // CustomController? _contactController;
 
   String userName = "";
-  String userPhone = "";
+
+  //String userPhone = "";
   String userEmail = "";
   String userImageFile = "";
   List<String> avatarList = [];
   FocusNode focusName = FocusNode();
   FocusNode focusEmail = FocusNode();
-  FocusNode focusPhone = FocusNode();
+
+  //FocusNode focusPhone = FocusNode();
 
   @override
   void initState() {
     super.initState();
     _nameController = CustomController();
     _emailController = CustomController();
-    _contactController = CustomController();
+    //_contactController = CustomController();
     profileController.getUserData();
     addAvatarData();
   }
@@ -244,15 +246,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             ),
                           ),
                         ),
-                        Padding(
+                        /* Padding(
                           padding: const EdgeInsets.only(
                               left: 20.0, top: 1.0, bottom: 1.0),
                           child: Text(
                             "Contact Number",
                             style: TextStyle(fontSize: 12),
                           ),
-                        ),
-                        Obx(
+                        ),*/
+                        /*Obx(
                           () => Padding(
                             padding: const EdgeInsets.only(
                                 left: 8.0, right: 8.0, top: 3.0, bottom: 3.0),
@@ -275,7 +277,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               },
                             ),
                           ),
-                        ),
+                        ),*/
                         Container(
                           margin: const EdgeInsets.all(10.0),
                           child: ElevatedButton(
@@ -306,19 +308,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   onSubmit() async {
     focusName.unfocus();
-    focusPhone.unfocus();
+    //focusPhone.unfocus();
     focusEmail.unfocus();
 
     APIService apiService = APIService();
 
     var email = _emailController!.text.toString();
     var name = _nameController!.text.toString();
-    var phone = _contactController!.text.toString();
+    //var phone = _contactController!.text.toString();
 
     ApplicationUtils.openDialog();
 
     var response = await apiService.updateUserProfile(
-        name, email, phone, profileController.authToken.value);
+        name, email, "", profileController.authToken.value);
 
     ApplicationUtils.closeDialog();
     print("${response.toString()}");
@@ -332,12 +334,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
       print("Saved asdasdas");
 
       profileController.name.value = name;
-      profileController.phone.value = phone;
+      //profileController.phone.value = phone;
       profileController.email.value = email;
 
       prefrenceService.setName(name);
       prefrenceService.setEmail(email);
-      prefrenceService.setPhone(phone);
+      //prefrenceService.setPhone(phone);
     } else {
       ApplicationUtils.closeDialog();
     }

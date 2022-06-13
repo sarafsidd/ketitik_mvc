@@ -10,6 +10,7 @@ import 'package:ketitik/screens/auth/views/register_screen.dart';
 import 'package:ketitik/screens/prefrences/views/prefrence_screen.dart';
 import 'package:ketitik/utility/prefrence_service.dart';
 
+import '../../../services/api_service.dart';
 import '../../../utility/application_utils.dart';
 import '../views/login_screen.dart';
 
@@ -49,7 +50,7 @@ class LoginController extends GetxController {
 
           _prefrence.setName(loginDb['data']['name']);
           _prefrence.setEmail(loginDb['data']['email']);
-          _prefrence.setPhone(loginDb['data']['contact']);
+          //_prefrence.setPhone(loginDb['data']['contact']);
           _prefrence.setToken(loginDb['token']);
 
           ApplicationUtils.closeDialog();
@@ -81,8 +82,7 @@ class LoginController extends GetxController {
 
   loginToDB(String emailID, String socialID, String deviceId) async {
     try {
-      final url =
-          Uri.parse('http://83.136.219.147/News/public/api/sociallogin');
+      final url = Uri.parse(APIService.login);
 
       Map<String, dynamic> mapData = {
         "email": emailID,
@@ -112,14 +112,12 @@ class LoginController extends GetxController {
   registerToDB(String emailID, String socialID, String name, String deviceID,
       String contactNumber) async {
     deviceId = await ApplicationUtils.getDeviceDetails();
-    final url =
-        Uri.parse('http://83.136.219.147/News/public/api/socialregister');
+    final url = Uri.parse(APIService.register);
     Map<String, dynamic> mapData = {
       "email_id": emailID,
       "social_id": socialID,
       "name": name,
       "device_id": deviceId,
-      "contact": contactNumber,
     };
     try {
       var response = await http.post(url, body: mapData);
@@ -128,6 +126,8 @@ class LoginController extends GetxController {
         print("Post Data : $postData");
         update();
         return postData;
+      } else {
+        return null;
       }
     } catch (e) {
       print("Catch Error : ${e.toString()}");
@@ -183,7 +183,7 @@ class LoginController extends GetxController {
 
           _prefrence.setName(loginDb['data']['name']);
           _prefrence.setEmail(loginDb['data']['email']);
-          _prefrence.setPhone(loginDb['data']['contact']);
+          //_prefrence.setPhone(loginDb['data']['contact']);
           _prefrence.setToken(loginDb['token']);
 
           ApplicationUtils.closeDialog();

@@ -18,16 +18,23 @@ class PrefrenceService {
     print("Name : $name");
   }
 
+  setTutorialStatus(bool? status) async {
+    _prefs = await SharedPreferences.getInstance();
+    _prefs!.setBool('tutorial', status!);
+    print("tutorial : $status");
+  }
+
+  getTutorialStatus() async {
+    _prefs = await SharedPreferences.getInstance();
+    bool? getAvatar = _prefs!.getBool('tutorial');
+    print("Get Tutorial :$getAvatar");
+    return getAvatar;
+  }
+
   setEmail(String? email) async {
     _prefs = await SharedPreferences.getInstance();
     _prefs!.setString('email', email!);
     print("Email : $email");
-  }
-
-  setPhone(String? phone) async {
-    _prefs = await SharedPreferences.getInstance();
-    _prefs!.setString('phone', phone!);
-    print("Phone : $phone");
   }
 
   setToken(String? token) async {
@@ -88,13 +95,6 @@ class PrefrenceService {
     String getToken = prefs.getString('token').toString();
     print("Get Token :$getToken");
     return getToken;
-  }
-
-  Future<String?> getPhone() async {
-    _prefs = await SharedPreferences.getInstance();
-    String? getPhone = _prefs!.getString('phone');
-    print("Get Phone :$getPhone");
-    return getPhone;
   }
 
   Future clearToken() async {

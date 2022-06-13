@@ -24,7 +24,6 @@ class MyPrefrenceScreen extends StatefulWidget {
 
 class _PrefrenceScreenState extends State<MyPrefrenceScreen> {
   List<PreferenceModelSve> itemList = [];
-  List<PreferenceModelSve> selectedList = [];
   List<String> selectedStrList = [];
   PrefrenceService prefrenceService = PrefrenceService();
 
@@ -36,6 +35,7 @@ class _PrefrenceScreenState extends State<MyPrefrenceScreen> {
   @override
   void initState() {
     super.initState();
+    bindSavedData();
     getData();
   }
 
@@ -122,106 +122,124 @@ class _PrefrenceScreenState extends State<MyPrefrenceScreen> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TopBar(),
-            SizedBox(
-              height: 20,
-            ),
-            //showContent(),
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: FutureBuilder<List<Preference>>(
-                  future: _apiService.getCategory(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    allList = snapshot.data!;
-                    getDataTotal(allList);
-                    return GridView.builder(
-                        shrinkWrap: true,
-                        itemCount: itemList.length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 5,
-                            mainAxisSpacing: 5),
-                        itemBuilder: (context, index) {
-                          return GridItem(
-                              item: itemList[index],
-                              isSelectedVal:
-                                  getSavedStatus(itemList[index].name),
-                              isSelected: (bool value) {
-                                setState(() {
-                                  if (value) {
-                                    selectedList.add(itemList[index]);
-                                    selectedStrList.add(itemList[index].id);
-                                  } else {
-                                    selectedList.remove(itemList[index]);
-                                    selectedStrList.remove(itemList[index].id);
-                                  }
-                                });
-                                print(
-                                    "------ selected ${selectedList.length.toString()}");
-                                print("$index : $value");
-                              },
-                              key: Key(itemList[index].id.toString()));
-                        });
-                  }),
-            ),
-            const Spacer(),
-            Container(
-              margin: EdgeInsets.all(10),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15)),
-                    primary: MyColors.themeColor,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    side: BorderSide(
-                      color: MyColors.themeColor,
-                    )),
-                child: const Text(
-                  'Update Preference',
-                  style: TextStyle(
-                    color: Colors.black,
-                  ),
-                ),
-                onPressed: () async {
-                  bindSavedData();
-                  //getDataSelected();
-                  ApplicationUtils.openDialog();
-                  var selectedCat = await _apiService.saveUserPrefrence(
-                      selectedStrList.toString(), deviceId);
-                  print("deviceId ${deviceId.toString()}");
-                  print("selectedCat :${selectedStrList.toString()}");
-                  if (selectedCat["status"] == true) {
-                    selectedStrList.clear();
-                    ApplicationUtils.closeDialog();
-                    Get.to(
-                      () => MyHomePage.withA(),
-                    );
-                  } else {
-                    ApplicationUtils.closeDialog();
-                    selectedStrList.clear();
-                    Get.snackbar('Error', 'Something Went Wrong');
-                  }
-                },
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              TopBar(),
+              SizedBox(
+                height: 5,
               ),
-            ),
-          ],
+              //showContent(),
+              Container(
+                padding: const EdgeInsets.all(15.0),
+                child: FutureBuilder<List<Preference>>(
+                    future: _apiService.getCategory(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      allList = snapshot.data!;
+                      getDataTotal(allList);
+                      return GridView.builder(
+                          primary: false,
+                          shrinkWrap: true,
+                          itemCount: itemList.length,
+                          scrollDirection: Axis.vertical,
+                          physics: ScrollPhysics(),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 3,
+                                  crossAxisSpacing: 5,
+                                  mainAxisSpacing: 5),
+                          itemBuilder: (context, index) {
+                            return GridItem(
+                                item: itemList[index],
+                                isSelectedVal:
+                                    getSavedStatus(itemList[index].name),
+                                isSelected: (bool value) {
+                                  setState(() {
+                                    if (value) {
+                                      selectedStrList.add(itemList[index].id);
+                                      print(
+                                          "List Size After Remove${selectedStrList.length}");
+                                      //selectedList.add(itemList[index]);
+                                    } else {
+                                      //selectedList.remove(itemList[index]);
+                                      int indexDelete =
+                                          getIndex(itemList[index].id);
+                                      print(
+                                          "List Item for Remove$indexDelete ${itemList[index].name}");
+                                      selectedStrList.removeAt(indexDelete);
+                                      print(
+                                          "List Size After Remove${selectedStrList.length}");
+                                    }
+                                  });
+                                  //print("------ selected ${selectedList.length.toString()}");
+                                  // print("$index : $value");
+                                },
+                                key: Key(itemList[index].id.toString()));
+                          });
+                    }),
+              ),
+              Container(
+                width: 200,
+                margin: EdgeInsets.all(10),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      primary: MyColors.themeColor,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: BorderSide(
+                        color: MyColors.themeColor,
+                      )),
+                  child: const Text(
+                    'Update Preference',
+                    style: TextStyle(
+                      color: Colors.black,
+                    ),
+                  ),
+                  onPressed: () async {
+                    //bindSavedData();
+                    //getDataSelected();
+                    // ApplicationUtils.openDialog();
+                    print("API selectedCat  :${selectedStrList.toString()}");
+
+                    var selectedCat = await _apiService.saveUserPrefrence(
+                        selectedStrList.toString(), deviceId);
+                    print("selectedCatList :${selectedStrList.toString()}");
+                    if (selectedCat["status"] == true) {
+                      selectedStrList.clear();
+                      ApplicationUtils.closeDialog();
+                      Get.to(
+                        () => MyHomePage.withA(),
+                      );
+                    } else {
+                      ApplicationUtils.closeDialog();
+                      selectedStrList.clear();
+                      Get.snackbar('Error', 'Something Went Wrong');
+                    }
+                    print("deviceId ${deviceId.toString()}");
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  getDataSelected() {
-    for (int i = 0; i < selectedList.length; i++) {
-      selectedList.add(selectedList[i]);
+  int getIndex(String item) {
+    int index = 0;
+    for (int i = 0; i < selectedStrList.length; i++) {
+      if (selectedStrList[i] == item) {
+        index = i;
+      }
     }
+    return index;
   }
 
   getDataTotal(List<Preference> list) {
@@ -230,7 +248,7 @@ class _PrefrenceScreenState extends State<MyPrefrenceScreen> {
       Preference pref = list[i];
       itemList.add(PreferenceModelSve(
           list[i].thumbImage, pref.categories.toString(), pref.id.toString()));
-      print("-----------${itemList[i].name}");
+      //print("-----------${itemList[i].name}");
     }
     print("${itemList.length.toString()}");
   }

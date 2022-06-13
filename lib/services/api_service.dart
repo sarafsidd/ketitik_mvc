@@ -16,7 +16,7 @@ import '../utility/application_utils.dart';
 import '../utility/prefrence_service.dart';
 
 class APIService {
-  final BaseUrlAws = "http://13.233.68.171/";
+  static final BaseUrlAws = "http://13.233.68.171/";
   final specificnews = "http://13.233.68.171/api/specific_news";
   final infographics = "http://13.233.68.171/api/infographics";
   final totalSwipesDevice = "http://13.233.68.171/api/swipe_count_devices";
@@ -32,6 +32,9 @@ class APIService {
   final newsprefrence = Uri.parse("http://13.233.68.171/api/preferencesData");
   final searchUrl = Uri.parse("http://13.233.68.171/api/search");
   final updateProfile = "http://13.233.68.171/api/update_profile";
+  static final register = "http://13.233.68.171/api/socialregister";
+  static final login = "http://13.233.68.171/api/sociallogin";
+//http://83.136.219.147/News/public
 
   String userToken = "";
   PrefrenceService prefrenceService = PrefrenceService();
@@ -39,7 +42,7 @@ class APIService {
   Future<String> getSpecificNewsData(String newsId) async {
     try {
       var response = await http.post(Uri.parse(specificnews),
-          body: {"id", newsId}).catchError((err) {
+          body: {"id": newsId}).catchError((err) {
         print('Error : $err');
       });
 
@@ -76,11 +79,11 @@ class APIService {
     }
   }
 
-  Future<String> updateSwipeDevice(String deviceId) async {
+  Future<String> updateSwipeDevice(String deviceId, String news_id) async {
+    print('Swipe API  : $deviceId :: $news_id');
     try {
-      var response = await http.post(Uri.parse(totalSwipesDevice), body: {
-        "device_id": deviceId,
-      }).catchError((err) {
+      var response = await http.post(Uri.parse(totalSwipesDevice),
+          body: {"device_id": deviceId, "news_id": news_id}).catchError((err) {
         print('Error : $err');
       });
 

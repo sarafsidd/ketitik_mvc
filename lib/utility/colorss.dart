@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class MyColors {
   static Color themeColorYellow = HexColor.fromHex('#ffde59');
+  //static Color themeColorBlack = HexColor.fromHex('#000');
   static Color themeRed = HexColor.fromHex('#fd1717');
   static Color themeColorBlack = HexColor.fromHex('#000');
   static Color themeLightYellow = const Color.fromRGBO(255, 255, 224, 1.0);

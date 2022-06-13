@@ -23,7 +23,7 @@ class ProfileController extends GetxController {
   getUserData() async {
     name.value = (await _prefrence.getName())!;
     email.value = (await _prefrence.getEmail())!;
-    phone.value = (await _prefrence.getPhone())!;
+    //phone.value = (await _prefrence.getPhone())!;
     authToken.value = (await _prefrence.getToken())!;
     isLoggedIn.value = await _prefrence.getLoggedIn();
     String? pathIndex = await _prefrence.getAvatarImage();

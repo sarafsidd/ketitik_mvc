@@ -5,6 +5,7 @@ import 'package:ketitik/screens/auth/controller/login_controller.dart';
 import 'package:ketitik/screens/auth/views/login_screen.dart';
 import 'package:ketitik/screens/prefrences/preferencemodel.dart';
 import 'package:ketitik/screens/prefrences/views/edit_prefrence_screen.dart';
+import 'package:ketitik/screens/staticpages/fulltutorial.dart';
 import 'package:ketitik/services/api_service.dart';
 import 'package:ketitik/utility/app_route.dart';
 import 'package:ketitik/utility/application_utils.dart';
@@ -362,6 +363,23 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         ListTile(
           iconColor: MyColors.blankTrans,
+          leading: const Icon(Icons.animation),
+          title: const Text(
+            'How to Use',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 13,
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          onTap: () => Get.to(FullTutorial()),
+        ),
+        const Divider(
+          height: 2,
+        ),
+        ListTile(
+          iconColor: MyColors.blankTrans,
           leading: const Icon(Icons.workspaces_outline),
           title: const Text(
             'My Saved Preferences',
@@ -431,6 +449,23 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         const Divider(
           height: 2,
+        ),
+        const Divider(
+          height: 2,
+        ),
+        ListTile(
+          iconColor: MyColors.blankTrans,
+          leading: const Icon(Icons.animation),
+          title: const Text(
+            'How to Use',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 13,
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          onTap: () => Get.to(FullTutorial()),
         ),
         ListTile(
           iconColor: MyColors.blankTrans,

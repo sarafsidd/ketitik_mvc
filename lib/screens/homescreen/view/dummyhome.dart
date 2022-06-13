@@ -16,7 +16,7 @@ class _DetailPageState extends State<TutoialHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Stack(
-      children: [Image.asset(name)],
+      children: [],
     ));
   }
 }

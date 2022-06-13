@@ -1,61 +1,37 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background/flutter_background.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:ketitik/screens/auth/binding/login_binding.dart';
+import 'package:ketitik/screens/bookmark/detail_page_noti.dart';
 import 'package:ketitik/utility/app_route.dart';
 import 'package:ketitik/utility/colorss.dart';
+import 'package:ketitik/utility/pushNotification.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(channel);
-
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
     alert: true,
     badge: true,
     sound: true,
   );
-
+  HttpOverrides.global = new MyCustomHttpOverrides();
   runApp(const MyApp());
 }
 
-const AndroidNotificationChannel channel = AndroidNotificationChannel(
-  'com.app.ketitik.ketitik', // id
-  'High Importance Notifications', // title
-  importance: Importance.high,
-);
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
-
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  RemoteNotification? notification = message.notification;
-  print("data Object Background ::  ${message.data}");
-  flutterLocalNotificationsPlugin.show(
-      notification.hashCode,
-      notification?.title,
-      notification?.body,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          channel.id,
-          channel.name,
-          // TODO add a proper drawable resource to android, for now using
-          //      one that already exists in example app.
-          icon: "@mipmap/ic_ketitiknew",
-          largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_ketnew'),
-        ),
-      ));
-
-  parseNotificationData(message.data);
-  // Get.to(NotificationDetailPage("id"));
+class MyCustomHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
 }
 
 class PushNotification {
@@ -82,66 +58,49 @@ parseNotificationData(Map<String, dynamic> response) {
 }
 
 class _MyAppState extends State<MyApp> {
-  //final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-  FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  PushNotificationService pushNotificationService = PushNotificationService();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+
+  final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey(debugLabel: "Main Navigator");
+
+  launchDetails(BuildContext context) async {
+    final notificationOnLaunchDetails = await FlutterLocalNotificationsPlugin()
+        .getNotificationAppLaunchDetails();
+    if (notificationOnLaunchDetails?.didNotificationLaunchApp ?? false) {
+      onSelectNotification(notificationOnLaunchDetails!.payload);
+    }
+  }
+
+  initialiseBackgroundMode() async {
+    final androidConfig = FlutterBackgroundAndroidConfig(
+      notificationImportance: AndroidNotificationImportance.High,
+      enableWifiLock: true,
+      notificationIcon: AndroidResource(
+          name:
+              'mipmap/ic_ketitiknew'), // Default is ic_launcher from folder mipmap
+    );
+    bool success = await FlutterBackground.enableBackgroundExecution();
+    if (success) {
+    } else {
+      await FlutterBackground.initialize(androidConfig: androidConfig);
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    getToken();
     var initialzationSettingsAndroid =
         const AndroidInitializationSettings('@mipmap/ic_ketitiknew');
+
     var initializationSettings =
         InitializationSettings(android: initialzationSettingsAndroid);
-    flutterLocalNotificationsPlugin.initialize(initializationSettings);
-
-    FirebaseMessaging.instance.getInitialMessage().then(
-      (message) {
-        if (message != null) {
-          print("data Object Initial :: ${message.data}");
-          parseNotificationData(message.data);
-          //Get.to(NotificationDetailPage("id"));
-        }
-      },
-    );
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
-      if (notification != null && android != null) {
-        print("data Object OnMessage :: ${message.data}");
-        flutterLocalNotificationsPlugin.show(
-            notification.hashCode,
-            notification.title,
-            notification.body,
-            NotificationDetails(
-              android: AndroidNotificationDetails(
-                channel.id,
-                channel.name,
-                // TODO add a proper drawable resource to android, for now using
-                //      one that already exists in example app.
-                icon: "@mipmap/ic_ketitiknew",
-                largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_ketnew'),
-              ),
-            ));
-
-        print("data Object OnMessage :: ${message.data}");
-        parseNotificationData(message.data);
-
-        //Get.to(NotificationDetailPage("id"));
-      }
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      RemoteNotification? notification = message.notification;
-      print("Notification MessageOpen :: ${notification?.body}");
-      print("data Object OnOpened :: ${message.data}");
-      parseNotificationData(message.data);
-
-      //Get.to(NotificationDetailPage("id"));
-    });
-
-    getToken();
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onSelectNotification: onSelectNotification);
+    launchDetails(context);
+    //initialiseBackgroundMode();
   }
 
   String? token;
@@ -157,9 +116,11 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    pushNotificationService.initialise(context);
     return GetMaterialApp(
       initialBinding: LoginBinding(),
       title: 'KeTitik',
+      navigatorKey: navigatorKey,
       initialRoute: RoutingNameConstants.SPLASH_SCREEN_ROUTE,
       getPages: AppRoute.routes,
       debugShowCheckedModeBanner: false,
@@ -171,5 +132,9 @@ class _MyAppState extends State<MyApp> {
       ),
       // home: ProfilePage(),
     );
+  }
+
+  void onSelectNotification(String? payload) {
+    Get.to(NotificationDetailPage(payload.toString()));
   }
 }

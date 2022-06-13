@@ -71,7 +71,7 @@ class NewsItemShare extends StatelessWidget {
                   ),
                   margin: const EdgeInsets.all(5.0),
                   semanticContainer: true,
-                  elevation: 0.2,
+                  elevation: 0,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [

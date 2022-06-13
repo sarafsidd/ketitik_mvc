@@ -6,10 +6,10 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:ketitik/screens/bookmark/bookmarkcontroller.dart';
+import 'package:ketitik/screens/bookmark/detail_page_noti.dart';
 
 import '../../utility/application_utils.dart';
 import '../../utility/colorss.dart';
-import 'detail_page_bookmark.dart';
 
 class BookMarkPage extends StatefulWidget {
   const BookMarkPage({Key? key}) : super(key: key);
@@ -61,8 +61,9 @@ class _BookMarkPageState extends State<BookMarkPage> {
                           itemBuilder: (_, i) {
                             return InkWell(
                                 onTap: () {
-                                  Get.to(BookmarkDetailPage(
-                                      bookmarkController.listBookmark[i]));
+                                  Get.to(NotificationDetailPage(
+                                      bookmarkController.listBookmark[i].id
+                                          .toString()));
                                 },
                                 child: Container(
                                     margin: const EdgeInsets.all(5.0),

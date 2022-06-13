@@ -19,6 +19,7 @@ import 'package:ketitik/screens/searchscreen/views/search_page.dart';
 import 'package:ketitik/services/api_service.dart';
 import 'package:ketitik/utility/NewsItemShare.dart';
 import 'package:ketitik/utility/application_utils.dart';
+import 'package:ketitik/utility/pushNotification.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
@@ -29,8 +30,11 @@ import '../../../utility/colorss.dart';
 import '../../../utility/customicons_icons.dart';
 import '../../../utility/prefrence_service.dart';
 import '../../../utility/swipeaction.dart';
+import '../../bookmark/detail_page_noti.dart';
 import '../../profile/profilescreen.dart';
+import '../../staticpages/tutorialpage.dart';
 import '../widgets/news_item.dart';
+import '../widgets/news_item_video.dart';
 import '../widgets/newsimage_item.dart';
 import '../widgets/newsimages_item.dart';
 import '../widgets/newsvideo_item.dart';
@@ -46,7 +50,7 @@ class MyHomePage extends StatefulWidget {
 
 class HomePageState extends State<MyHomePage> {
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-
+  PushNotificationService pushNotificationService = PushNotificationService();
   int selectedIndex = 0;
   final APIService _apiService = APIService();
   final HomeController homeController = Get.put(HomeController());
@@ -67,6 +71,8 @@ class HomePageState extends State<MyHomePage> {
   bool statusLoggin = false;
   final FlutterShareMe flutterShareMe = FlutterShareMe();
   String deviceId = "";
+  bool isFirstTime = true;
+  String activeTab = "";
 
   @override
   void initState() {
@@ -76,7 +82,20 @@ class HomePageState extends State<MyHomePage> {
     homeController.getLoggedinStatus();
     homeController.getAllNewsData();
     getDeviceIdData();
+    getUserTutorial();
     super.initState();
+  }
+
+  getUserTutorial() {
+    prefrenceService
+        .getTutorialStatus()
+        .then((value) => {isFirstTime = value, hideTutorial()});
+    print("Tutorial Status :: $isFirstTime");
+  }
+
+  saveTutorial() {
+    prefrenceService.setTutorialStatus(true);
+    print("Tutorial Status  :: $isFirstTime");
   }
 
   getDeviceIdData() async {
@@ -94,115 +113,141 @@ class HomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    pushNotificationService.initialise(context);
     double widthscreen = MediaQuery.of(context).size.width;
 
     return Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
-            child: Container(
-          child: Column(
-            children: [
-              //toolbar
-              Visibility(
-                  visible: homeController.isVisible.value,
-                  child: topBar(widthscreen)),
-              Obx(
-                () => FutureBuilder<List<KetitikModel>?>(
-                  future: homeController.getUpdatedList(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Container(
-                        height: MediaQuery.of(context).size.height * 0.777,
-                        child: Align(
-                            alignment: Alignment.center,
-                            child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                  MyColors.themeColor),
-                            )),
-                      );
-                    } else if (snapshot.data?.length == 0) {
-                      return Container(
-                          height: MediaQuery.of(context).size.height * 0.777,
-                          child: Align(
-                              alignment: Alignment.center,
-                              child: Column(
-                                children: [
-                                  SizedBox(
-                                    height: 100,
-                                  ),
-                                  Image.asset(
-                                    "assets/images/nonewsss.jpg",
-                                    width: 300,
-                                    height: 300,
-                                  ),
-                                  Text("No News Found")
-                                ],
-                              )));
-                    } else {
-                      List<KetitikModel>? listOfArticle = snapshot.data;
-                      var height = homeController.isVisible.value
-                          ? MediaQuery.of(context).size.height * 0.777
-                          : MediaQuery.of(context).size.height;
+            child: Stack(
+          children: [
+            Container(
+              child: Column(
+                children: [
+                  //toolbar
+                  Visibility(
+                      visible: homeController.isVisible.value,
+                      child: topBar(widthscreen)),
+                  Obx(
+                    () => FutureBuilder<List<KetitikModel>?>(
+                      future: homeController.getUpdatedList(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Container(
+                            height: MediaQuery.of(context).size.height * 0.777,
+                            child: Align(
+                                alignment: Alignment.center,
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      MyColors.themeColor),
+                                )),
+                          );
+                        } else if (snapshot.connectionState ==
+                                ConnectionState.done &&
+                            snapshot.data?.length == 0) {
+                          return Container(
+                            height: MediaQuery.of(context).size.height * 0.777,
+                            child: Align(
+                                alignment: Alignment.center,
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      MyColors.themeColor),
+                                )),
+                          );
+                        } else {
+                          List<KetitikModel>? listOfArticle = snapshot.data;
+                          var height = homeController.isVisible.value
+                              ? MediaQuery.of(context).size.height * 0.777
+                              : MediaQuery.of(context).size.height;
 
-                      return GestureDetector(
-                          onHorizontalDragEnd: (DragEndDetails details) {
-                            if (details.primaryVelocity! > 0) {
-                              // User swiped Left
-                              Navigator.of(context).push(ProfilePageRoute());
-                            } else if (details.primaryVelocity! < 0) {
-                              // User swiped Right
-                              Navigator.of(context).push(FullPageRoute(
-                                  categoryNameFull, articleFull, newsId));
-                            }
-                          },
-                          child: CarouselSlider.builder(
-                              carouselController: CarouselController(),
-                              options: CarouselOptions(
-                                scrollDirection: Axis.vertical,
-                                height: height,
-                                enableInfiniteScroll: false,
-                                initialPage: homeController.indexCurrent.value,
-                                viewportFraction: 1.0,
-                                enlargeCenterPage: true,
-                                onPageChanged: (index, reason) {
-                                  print("device id for NewsSwipe :: $deviceId");
-                                  _apiService.updateSwipeDevice(deviceId);
-                                },
-                              ),
-                              itemCount: listOfArticle?.length,
-                              itemBuilder: (BuildContext context, int itemIndex,
-                                  int pageViewIndex) {
-                                int? lengthCurrent = listOfArticle?.length;
-                                print("ListData $lengthCurrent");
-                                print("ListIndex $itemIndex");
-                                var article = listOfArticle![itemIndex];
-                                homeController.bookmarkStatus.value =
-                                    article.bookmarks!;
-
-                                categoryNameFull = article.category!;
-                                articleFull = article.url!;
-                                articleTitle = article.title!;
-                                newsId = article.id.toString();
-
-                                if (itemIndex == lengthCurrent! - 2) {
-                                  homeController.getMoreData(itemIndex);
+                          return GestureDetector(
+                              onHorizontalDragEnd: (DragEndDetails details) {
+                                if (details.primaryVelocity! > 0) {
+                                  // User swiped Left
+                                  Navigator.of(context)
+                                      .push(ProfilePageRoute());
+                                } else if (details.primaryVelocity! < 0) {
+                                  // User swiped Right
+                                  Navigator.of(context).push(FullPageRoute(
+                                      categoryNameFull, articleFull, newsId));
                                 }
-                                if ((itemIndex + 1) % 3 == 0) {
-                                  homeController.getTheInfographicData();
-                                }
+                              },
+                              child: CarouselSlider.builder(
+                                  carouselController: CarouselController(),
+                                  options: CarouselOptions(
+                                    scrollDirection: Axis.vertical,
+                                    height: height,
+                                    enableInfiniteScroll: true,
+                                    initialPage:
+                                        homeController.indexCurrent.value,
+                                    viewportFraction: 1.0,
+                                    enlargeCenterPage: true,
+                                    onPageChanged: (index, reason) {
+                                      print(
+                                          "device id for NewsSwipe :: $deviceId");
+                                      KetitikModel model =
+                                          listOfArticle![index];
+                                      _apiService.updateSwipeDevice(
+                                          deviceId, model.id.toString());
+                                    },
+                                  ),
+                                  itemCount: listOfArticle?.length,
+                                  itemBuilder: (BuildContext context,
+                                      int itemIndex, int pageViewIndex) {
+                                    int? lengthCurrent = listOfArticle?.length;
+                                    print("ListData $lengthCurrent");
+                                    print("ListIndex $itemIndex");
+                                    var article = listOfArticle![itemIndex];
+                                    homeController.bookmarkStatus.value =
+                                        article.bookmarks!;
 
-                                return (itemIndex + 1) % 6 == 0
-                                    ? getDataInfo()
-                                    : fullCourosolView(article, itemIndex);
-                              }));
-                    }
-                  },
-                ),
-              )
-              //main view
-            ],
-          ),
+                                    categoryNameFull = article.category!;
+                                    articleFull = article.url!;
+                                    articleTitle = article.title!;
+                                    newsId = article.id.toString();
+
+                                    if (itemIndex == lengthCurrent! - 2) {
+                                      homeController.getMoreData(itemIndex);
+                                    }
+                                    if ((itemIndex + 1) % 3 == 0) {
+                                      homeController.getTheInfographicData();
+                                    }
+                                    if (itemIndex == 0) {
+                                      KetitikModel model =
+                                          listOfArticle[itemIndex];
+                                      _apiService.updateSwipeDevice(
+                                          deviceId, model.id.toString());
+                                    }
+
+                                    return (itemIndex + 1) % 5 == 0
+                                        ? getDataInfo()
+                                        : fullCourosolView(article, itemIndex);
+                                  }));
+                        }
+                      },
+                    ),
+                  )
+                  //main view
+                ],
+              ),
+            ),
+            Visibility(
+                visible: isFirstTime,
+                child: GestureDetector(
+                    onTap: () => {hideTutorial()}, child: TutorialPages()))
+          ],
         )));
+  }
+
+  hideTutorial() {
+    if (isFirstTime == true) {
+      isFirstTime = false;
+      saveTutorial();
+      setState(() {});
+    } else {
+      isFirstTime = true;
+    }
   }
 
   Widget getDataInfo() {
@@ -213,7 +258,8 @@ class HomePageState extends State<MyHomePage> {
     if (homeController.uploads_type == "image") {
       return getImageOrSlider();
     } else {
-      return fullVideo();
+      List<String> clist = homeController.multiple_images.toString().split(",");
+      return fullVideo(clist[0]);
     }
   }
 
@@ -227,6 +273,7 @@ class HomePageState extends State<MyHomePage> {
   }
 
   Widget fullImageView(String imageUrl) {
+    print("Url VIdeo Selected :: $imageUrl");
     return Stack(children: [
       Positioned.fill(
           child: Container(
@@ -243,20 +290,20 @@ class HomePageState extends State<MyHomePage> {
     ]);
   }
 
-  Widget fullVideo() {
+  Widget fullVideo(String url) {
     return Stack(children: [
       Positioned.fill(
           child: Container(
         color: Colors.white,
         child: NewsItemVideo(
           title: "article.title",
-          imageUrl: "withUrl",
+          imageUrl: url,
           description: "",
           author: "",
           source: "",
           link: false,
         ),
-      )),
+      ))
     ]);
   }
 
@@ -376,7 +423,7 @@ class HomePageState extends State<MyHomePage> {
           color: Colors.white,
         )),
         article.uploads_type == "video"
-            ? NewsItemVideo(
+            ? NewsItemVideoss(
                 title: article.title,
                 imageUrl: withUrl,
                 description: article.description ?? "  ",
@@ -392,27 +439,119 @@ class HomePageState extends State<MyHomePage> {
                 source: article.source,
                 link: false,
               ),
-        Padding(
-          padding: const EdgeInsets.only(right: 8.0),
-          child: Align(
-            alignment: FractionalOffset.bottomRight,
-            child: GestureDetector(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Visibility(
-                    visible: homeController.isLoggedin.value,
-                    child: GestureDetector(
-                      onTap: () async {
-                        // getUserToken();
-                        _apiService.addBookmark(
-                          article.url,
-                          article.id.toString(),
-                          article.title,
-                        );
+        Positioned(
+          left: 5,
+          bottom: 52,
+          child: GestureDetector(
+            onTap: () {
+              if (homeController.isLiked.value == true) {
+                homeController.isLiked.value = false;
+              } else {
+                homeController.isLiked.value = true;
+              }
+            },
+            child: Container(
+              height: 40,
+              width: 40,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(
+                10,
+              )),
+              child: Obx(
+                () => Center(
+                    child: homeController.isLiked.value
+                        ? Icon(
+                            Icons.favorite,
+                            color: Colors.red,
+                            size: 25,
+                          )
+                        : Icon(
+                            Icons.favorite_border,
+                            color: MyColors.themeBlackTrans,
+                            size: 25,
+                          )),
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          right: 0,
+          bottom: 52,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: Align(
+              //alignment: FractionalOffset.bottomCenter,
+              child: GestureDetector(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Visibility(
+                      visible: homeController.isLoggedin.value,
+                      child: GestureDetector(
+                        onTap: () async {
+                          // getUserToken();
+                          _apiService.addBookmark(
+                            article.url,
+                            article.id.toString(),
+                            article.title,
+                          );
 
-                        homeController.updateValueList(index);
+                          homeController.updateValueList(index);
+                        },
+                        child: Container(
+                          height: 40,
+                          width: 40,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(
+                            10,
+                          )),
+                          child: Obx(
+                            () => Center(
+                              child: homeController.bookmarkStatus.value == 0
+                                  ? Icon(
+                                      Icons.bookmark_border,
+                                      color: MyColors.themeBlackTrans,
+                                      size: 25,
+                                    )
+                                  : Icon(
+                                      Icons.bookmark,
+                                      color: Colors.black,
+                                      size: 25,
+                                    ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 3,
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                        ApplicationUtils.openDialog();
+                        final imageFile = await screenshotController
+                            .captureFromWidget(Container(
+                                color: Colors.white,
+                                child: fullShareView(article)));
+
+                        ApplicationUtils.closeDialog();
+
+                        if (imageFile != null) {
+                          final directory =
+                              await getApplicationDocumentsDirectory();
+                          final imagePath =
+                              await File('${directory.path}/image.png')
+                                  .create();
+                          await imagePath.writeAsBytes(imageFile);
+
+                          /// Share Plugin
+                          await Share.shareFiles([imagePath.path],
+                              text:
+                                  "Download keTitik, aplikasi berita Indonesia. Hemat waktu membaca berita dalam 60 kata \n Google Play : https://play.google.com/store/apps/details?id=com.app.ketitik.ketitik",
+                              subject:
+                                  "Download keTitik, aplikasi berita Indonesia. Hemat waktu membaca berita dalam 60 kata \n Google Play : https://play.google.com/store/apps/details?id=com.app.ketitik.ketitik");
+                        }
                       },
                       child: Container(
                         height: 40,
@@ -421,106 +560,20 @@ class HomePageState extends State<MyHomePage> {
                             borderRadius: BorderRadius.circular(
                           10,
                         )),
-                        child: Obx(
-                          () => Center(
-                            child: homeController.bookmarkStatus.value == 0
-                                ? Icon(
-                                    Icons.bookmark_border,
-                                    color: MyColors.themeBlackTrans,
-                                    size: 25,
-                                  )
-                                : Icon(
-                                    Icons.bookmark,
-                                    color: Colors.black,
-                                    size: 25,
-                                  ),
+                        child: Center(
+                          child: Icon(
+                            Customicons.share_1,
+                            color: MyColors.themeBlackTrans,
+                            size: 23,
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 3,
-                  ),
-                  GestureDetector(
-                    onTap: () async {
-                      ApplicationUtils.openDialog();
-                      final imageFile = await screenshotController
-                          .captureFromWidget(Container(
-                              color: Colors.white,
-                              child: fullShareView(article)));
-
-                      ApplicationUtils.closeDialog();
-
-                      if (imageFile != null) {
-                        final directory =
-                            await getApplicationDocumentsDirectory();
-                        final imagePath =
-                            await File('${directory.path}/image.png').create();
-                        await imagePath.writeAsBytes(imageFile);
-
-                        /// Share Plugin
-                        await Share.shareFiles([imagePath.path],
-                            text:
-                                "Download keTitik, aplikasi berita Indonesia. Hemat waktu membaca berita dalam 60 kata \n Google Play : https://play.google.com/store/apps/details?id=com.app.ketitik.ketitik",
-                            subject:
-                                "Download keTitik, aplikasi berita Indonesia. Hemat waktu membaca berita dalam 60 kata \n Google Play : https://play.google.com/store/apps/details?id=com.app.ketitik.ketitik");
-                      }
-                    },
-                    child: Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(
-                        10,
-                      )),
-                      child: Center(
-                        child: Icon(
-                          Customicons.share_1,
-                          color: MyColors.themeBlackTrans,
-                          size: 23,
-                        ),
-                      ),
+                    SizedBox(
+                      height: 3,
                     ),
-                  ),
-                  SizedBox(
-                    height: 3,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      if (homeController.isLiked.value == true) {
-                        homeController.isLiked.value = false;
-                      } else {
-                        homeController.isLiked.value = true;
-                      }
-                    },
-                    child: Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(
-                        10,
-                      )),
-                      child: Obx(
-                        () => Center(
-                            child: homeController.isLiked.value
-                                ? Icon(
-                                    Icons.favorite,
-                                    color: Colors.red,
-                                    size: 25,
-                                  )
-                                : Icon(
-                                    Icons.favorite_border,
-                                    color: MyColors.themeBlackTrans,
-                                    size: 25,
-                                  )),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 55,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -727,8 +780,7 @@ class HomePageState extends State<MyHomePage> {
                       )),
                   onTap: () => {
                         setState(() {
-                          homeController.refreshToTop();
-                          homeController.getUpdatedList();
+                          getTabData(selectedIndex);
                         })
                       }),
               InkWell(
@@ -787,6 +839,7 @@ class HomePageState extends State<MyHomePage> {
             //     ),
             //   );
             // }
+            Get.to(NotificationDetailPage("id"));
           }
         },
       );
@@ -801,7 +854,7 @@ class HomePageState extends State<MyHomePage> {
             print(message.notification!.body);
             print("message.data11 ${message.data}");
             /*LocalNotificationService.createanddisplaynotification(message);*/
-
+            Get.to(NotificationDetailPage("id"));
           }
         },
       );
@@ -816,6 +869,7 @@ class HomePageState extends State<MyHomePage> {
             print(message.notification!.title);
             print(message.notification!.body);
             print("message.data22 ${message.data['_id']}");
+            Get.to(NotificationDetailPage("id"));
           }
         },
       );

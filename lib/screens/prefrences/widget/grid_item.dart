@@ -26,21 +26,25 @@ class _GridItemState extends State<GridItem> {
   void initState() {
     super.initState();
     isSelected = widget.isSelectedVal;
+    print("Current Status :: $isSelected");
   }
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        setState(() {
-          if (isSelected) {
-            isSelected = false;
-          } else {
-            isSelected = true;
-          }
-          widget.isSelectedVal = isSelected;
-          widget.isSelected(widget.isSelectedVal);
-        });
+        if (isSelected) {
+          isSelected = false;
+        } else {
+          isSelected = true;
+        }
+        widget.isSelectedVal = isSelected;
+        print("Current Status On Tap :: ${widget.isSelectedVal}");
+        widget.isSelected(widget.isSelectedVal);
+        print("Current Status On Tap :: ${widget.isSelected}");
+/*        setState(() {
+
+        });*/
       },
       child: Stack(
         children: <Widget>[

@@ -28,7 +28,7 @@ class AppRoute {
         binding: LoginBinding()),
     GetPage(
         name: RoutingNameConstants.HOME_SCREEN_ROUTE,
-        page: () =>  MyHomePage.withA(),
+        page: () => MyHomePage.withA(),
         binding: HomeBinding()),
     GetPage(
       name: RoutingNameConstants.REGISTER_SCREEN_ROUTE,
@@ -40,8 +40,8 @@ class AppRoute {
     ),
     GetPage(
       name: RoutingNameConstants.BOOKMARK_SCREEN_ROUTE,
-      page: ()=>BookMarkPage(),
-       binding: BookMarkBinding(),
+      page: () => BookMarkPage(),
+      binding: BookMarkBinding(),
     ),
   ];
 }
