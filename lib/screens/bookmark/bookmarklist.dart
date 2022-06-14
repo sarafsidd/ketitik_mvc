@@ -26,7 +26,7 @@ class _BookMarkPageState extends State<BookMarkPage> {
   void initState() {
     super.initState();
     getDeviceData();
-    bookmarkController.getUserData();
+    //bookmarkController.getUserData();
     Timer(Duration(seconds: 1), () {
       bookmarkController.getDataBookMark(deviceId);
     });

@@ -66,6 +66,8 @@ class NewsItemState extends State<NewsItem> {
               padding: const EdgeInsets.symmetric(horizontal: 15.0),
               child: Text(
                 widget.title!,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: Colors.black,
                   fontSize: 17,

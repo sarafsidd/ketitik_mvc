@@ -15,15 +15,15 @@ class BookmarkController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    getUserData();
+    //getUserData();
   }
 
-  getUserData() async {
-    authToken.value = (await _prefrence.getToken().then((value) => value))!;
-  }
+  //getUserData() async {
+  //  authToken.value = (await _prefrence.getToken().then((value) => value))!;
+  //}
 
   Future<List<BookMarkData>> getDataBookMark(String deviceId) async {
-    getUserData();
+    //getUserData();
     //ApplicationUtils.openDialog();
     print("deviceId ${deviceId}");
     listBookmark.value = await apiService.getBookmarkNews(deviceId);

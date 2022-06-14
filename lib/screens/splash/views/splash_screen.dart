@@ -27,9 +27,9 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   getBoolStatus() async {
+    bool status = await prefrenceService.getPreferenceSaved();
     String deviceToken = ApplicationUtils.getDeviceId();
     prefrenceService.setDeviceId(deviceToken);
-    bool status = await prefrenceService.getPreferenceSaved();
     String? token = await prefrenceService.getToken();
     print("login status $status");
     print("logstat token : $token");

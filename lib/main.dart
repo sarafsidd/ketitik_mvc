@@ -9,6 +9,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:ketitik/screens/auth/binding/login_binding.dart';
 import 'package:ketitik/screens/bookmark/detail_page_noti.dart';
+import 'package:ketitik/screens/homescreen/view/home_screen.dart';
 import 'package:ketitik/utility/app_route.dart';
 import 'package:ketitik/utility/colorss.dart';
 import 'package:ketitik/utility/pushNotification.dart';
@@ -65,14 +66,6 @@ class _MyAppState extends State<MyApp> {
   final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey(debugLabel: "Main Navigator");
 
-  launchDetails(BuildContext context) async {
-    final notificationOnLaunchDetails = await FlutterLocalNotificationsPlugin()
-        .getNotificationAppLaunchDetails();
-    if (notificationOnLaunchDetails?.didNotificationLaunchApp ?? false) {
-      onSelectNotification(notificationOnLaunchDetails!.payload);
-    }
-  }
-
   initialiseBackgroundMode() async {
     final androidConfig = FlutterBackgroundAndroidConfig(
       notificationImportance: AndroidNotificationImportance.High,
@@ -92,14 +85,15 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     getToken();
-    var initialzationSettingsAndroid =
+    /*  var initialzationSettingsAndroid =
         const AndroidInitializationSettings('@mipmap/ic_ketitiknew');
 
     var initializationSettings =
         InitializationSettings(android: initialzationSettingsAndroid);
     flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: onSelectNotification);
-    launchDetails(context);
+
+    launchDetails(context);*/
     //initialiseBackgroundMode();
   }
 
@@ -116,7 +110,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    pushNotificationService.initialise(context);
+    //pushNotificationService.initialise(context);
     return GetMaterialApp(
       initialBinding: LoginBinding(),
       title: 'KeTitik',
@@ -135,6 +129,23 @@ class _MyAppState extends State<MyApp> {
   }
 
   void onSelectNotification(String? payload) {
+    print("Normal Call :: Notification");
     Get.to(NotificationDetailPage(payload.toString()));
+  }
+
+  launchDetails(BuildContext context) async {
+    final notificationOnLaunchDetails = await FlutterLocalNotificationsPlugin()
+        .getNotificationAppLaunchDetails();
+    if (notificationOnLaunchDetails?.didNotificationLaunchApp ?? false) {
+      onSelectNotification(notificationOnLaunchDetails!.payload);
+    }
+  }
+
+  void onSelectNotificationTerminated(String? payload) {
+    print("Terminated Call :: Notification");
+    Get.to(MyHomePage.withNotification(
+      foo: payload,
+    ));
+    //Get.to(NotificationDetailPage(payload.toString()));
   }
 }

@@ -85,7 +85,7 @@ class HomeController extends GetxController {
         filter: "feeds",
         pageNumber: pageNumber.value.toString(),
         deviceId: deviceId))!;
-    //pageNumber.value = pageNumber.value + 1;
+    pageNumber.value = pageNumber.value + 1;
 
     return list.value;
   }
@@ -98,7 +98,7 @@ class HomeController extends GetxController {
         pageNumber: pageNumber.value.toString(),
         deviceId: deviceId))!;
 
-    //pageNumber.value = pageNumber.value + 1;
+    pageNumber.value = pageNumber.value + 1;
 
     print("ListData Top $pageNumber ${list.value.length}");
 
@@ -129,7 +129,7 @@ class HomeController extends GetxController {
         pageNumber: pageNumber.value.toString(),
         deviceId: deviceId))!;
 
-    //pageNumber.value = pageNumber.value + 1;
+    pageNumber.value = pageNumber.value + 1;
 
     print("ListData Trending $pageNumber ${list.value.length}");
 
@@ -137,8 +137,8 @@ class HomeController extends GetxController {
   }
 
   Future<List<KetitikModel>> getUpdatedList() async {
-    //List<KetitikModel> newsUpdated = shuffle(list.value);
-    return list.value;
+    List<KetitikModel> newsUpdated = shuffle(list.value);
+    return newsUpdated;
   }
 
   Future<List<KetitikModel>> getAllNewsData() async {
@@ -149,7 +149,7 @@ class HomeController extends GetxController {
         pageNumber: pageNumber.value.toString(),
         deviceId: deviceId))!;
 
-    //pageNumber.value = pageNumber.value + 1;
+    pageNumber.value = pageNumber.value + 1;
     print("ListData All deviceToken $deviceId");
 
     return list.value;
@@ -196,6 +196,6 @@ class HomeController extends GetxController {
     super.onInit();
     getDeviceData();
     onTapVisibilty();
-    getAllNewsData();
+    // getAllNewsData();
   }
 }

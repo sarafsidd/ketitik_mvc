@@ -9,12 +9,14 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:ketitik/models/ketitiknews.dart';
 import 'package:ketitik/screens/bookmark/bookmarkcontroller.dart';
+import 'package:ketitik/screens/bookmark/detail_page_notification.dart';
 import 'package:ketitik/screens/searchscreen/views/search_page.dart';
 import 'package:ketitik/services/api_service.dart';
 import 'package:ketitik/utility/NewsItemShare.dart';
@@ -40,9 +42,13 @@ import '../widgets/newsimages_item.dart';
 import '../widgets/newsvideo_item.dart';
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key}) : super(key: key);
+  String? foo = "abc";
 
-  MyHomePage.withA({Key? key});
+  MyHomePage({Key? key, this.foo}) : super(key: key);
+
+  MyHomePage.withA({Key? key, this.foo});
+
+  MyHomePage.withNotification({Key? key, this.foo});
 
   @override
   State<MyHomePage> createState() => HomePageState();
@@ -52,11 +58,15 @@ class HomePageState extends State<MyHomePage> {
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   PushNotificationService pushNotificationService = PushNotificationService();
   int selectedIndex = 0;
+
+  ProfileController profileController = ProfileController();
+  PrefrenceService prefrenceService = PrefrenceService();
+  ScreenshotController screenshotController = ScreenshotController();
+
   final APIService _apiService = APIService();
   final HomeController homeController = Get.put(HomeController());
   final BookmarkController bookmarkController = Get.put(BookmarkController());
-  ProfileController profileController = ProfileController();
-  PrefrenceService prefrenceService = PrefrenceService();
+
   var articleFull = "";
   var categoryNameFull = "";
   var articleTitle = "";
@@ -65,25 +75,63 @@ class HomePageState extends State<MyHomePage> {
   var page_number = 1;
 
   String userToken = "";
-
-  ScreenshotController screenshotController = ScreenshotController();
-
   bool statusLoggin = false;
   final FlutterShareMe flutterShareMe = FlutterShareMe();
   String deviceId = "";
   bool isFirstTime = true;
   String activeTab = "";
 
+  //notification
+
+  //PushNotificationService pushNotificationService = PushNotificationService();
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey(debugLabel: "Main Navigator");
   @override
   void initState() {
-    //firebaseCloudMessaging_Listeners();
+    var initialzationSettingsAndroid =
+        const AndroidInitializationSettings('@mipmap/ic_ketitiknew');
+
+    var initializationSettings =
+        InitializationSettings(android: initialzationSettingsAndroid);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onSelectNotification: onSelectNotification);
+
+    launchDetails(context);
+
     homeController.getDeviceData();
     homeController.getTheInfographicData();
     homeController.getLoggedinStatus();
     homeController.getAllNewsData();
     getDeviceIdData();
     getUserTutorial();
+    /* if (widget.foo == "" || widget.foo == "abc" || widget.foo == null) {
+    } else {
+      //navigateToNotification();
+    }*/
+
     super.initState();
+  }
+
+  void onSelectNotification(String? payload) {
+    print("Normal Call :: Notification");
+    Get.to(NotificationDetailPage(payload.toString()));
+  }
+
+  launchDetails(BuildContext context) async {
+    final notificationOnLaunchDetails = await FlutterLocalNotificationsPlugin()
+        .getNotificationAppLaunchDetails();
+    if (notificationOnLaunchDetails?.didNotificationLaunchApp ?? false) {
+      onSelectNotification(notificationOnLaunchDetails!.payload);
+    }
+  }
+
+  navigateToNotification() {
+    // Future.delayed(Duration.zero, () {
+    Get.to(NotiDetailPage(widget.foo.toString()));
+    // });
   }
 
   getUserTutorial() {
@@ -115,7 +163,6 @@ class HomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     pushNotificationService.initialise(context);
     double widthscreen = MediaQuery.of(context).size.width;
-
     return Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
@@ -235,7 +282,10 @@ class HomePageState extends State<MyHomePage> {
             Visibility(
                 visible: isFirstTime,
                 child: GestureDetector(
-                    onTap: () => {hideTutorial()}, child: TutorialPages()))
+                    onTap: () => {hideTutorial()}, child: TutorialPages())),
+            /* Visibility(
+                visible: widget.foo == null ? false : true,
+                child: NotiDetailPage(widget.foo.toString()))*/
           ],
         )));
   }
