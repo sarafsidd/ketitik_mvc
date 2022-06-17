@@ -71,11 +71,23 @@ class HomeController extends GetxController {
   getTheInfographicData() async {
     var response = await _apiService.getInfoGraphic();
     var data = json.decode(response);
-    var dataRes = data["Data"];
-    multiple_images = dataRes["multiple_images"];
-    uploads_type = dataRes["uploads_type"];
-    type = dataRes["type"];
-    image = dataRes["image"];
+    var success = data["Success"];
+
+    print("$success");
+
+    if (success == true) {
+      var dataRes = data["Data"];
+      //{"Success":false,"Message":"Record not found","Data":""}
+      multiple_images = dataRes["multiple_images"];
+      uploads_type = dataRes["uploads_type"];
+      type = dataRes["type"];
+      image = dataRes["image"];
+    } else {
+      multiple_images = "abc";
+      uploads_type = "abc";
+      type = "abc";
+      image = "abc";
+    }
   }
 
   Future<List<KetitikModel>> getMyFeedData() async {

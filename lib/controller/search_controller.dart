@@ -26,7 +26,7 @@ class SearchController extends GetxController {
         update();
         //return news.data;
         print(
-            "Total Data found for ${query.toString()} is ${searchResult.length}");
+            "Total Data found for ${query.toString()} is ${searchResult.length} :: ${news.toString()}");
       } else {
         searchResult.value.clear();
         update();

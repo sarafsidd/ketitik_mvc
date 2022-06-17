@@ -268,7 +268,10 @@ class HomePageState extends State<MyHomePage> {
                                     }
 
                                     return (itemIndex + 1) % 5 == 0
-                                        ? getDataInfo()
+                                        ? homeController.uploads_type == "abc"
+                                            ? fullCourosolView(
+                                                article, itemIndex)
+                                            : getDataInfo()
                                         : fullCourosolView(article, itemIndex);
                                   }));
                         }

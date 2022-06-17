@@ -164,6 +164,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   onSubmit() async {
+    print("Type Email ${_emailController!.text}");
+
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
       _formKey.currentState!.save();

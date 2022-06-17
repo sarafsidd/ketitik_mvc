@@ -155,6 +155,7 @@ class LoginController extends GetxController {
         await FacebookAuth.instance.login(permissions: permissionsReq);
     switch (result.status) {
       case LoginStatus.success:
+        deviceId = await ApplicationUtils.getDeviceDetails();
         print("success");
 
         var graphResponse = await http.get(Uri.parse(
@@ -199,9 +200,9 @@ class LoginController extends GetxController {
                 socialID: socialId,
               ));
         }
-
         break;
       case LoginStatus.cancelled:
+        ApplicationUtils.closeDialog();
         print("CANcelled ${result.message}");
         break;
       case LoginStatus.operationInProgress:

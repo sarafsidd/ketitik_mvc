@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ketitik/controller/search_controller.dart';
 import 'package:ketitik/models/newsdata.dart';
+import 'package:ketitik/screens/bookmark/detail_page_noti.dart';
 import 'package:ketitik/services/api_service.dart';
+import 'package:ketitik/utility/application_utils.dart';
 import 'package:ketitik/utility/colorss.dart';
-
-import 'detail_page.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -74,8 +74,9 @@ class _SearchPageState extends State<SearchPage> {
                           itemBuilder: (_, i) {
                             return InkWell(
                               onTap: () {
-                                Get.to(DetailPage(
-                                    getSearchController.searchResult[i]));
+                                Get.to(NotificationDetailPage(
+                                    getSearchController.searchResult[i].id
+                                        .toString()));
                               },
                               child: searchNewsItem(
                                   getSearchController.searchResult[i]),
@@ -231,6 +232,7 @@ class _SearchPageState extends State<SearchPage> {
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Container(
+                    width: MediaQuery.of(context).size.width,
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -286,6 +288,9 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   onSearchTextChanged(String value) async {
+    ApplicationUtils.openDialog();
+    print("Search Query :: $value");
     getSearchController.getSearchNews(query: value);
+    ApplicationUtils.closeDialog();
   }
 }

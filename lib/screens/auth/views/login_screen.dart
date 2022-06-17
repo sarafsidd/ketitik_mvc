@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
               ),
-              /*Padding(
+              Padding(
                 padding: const EdgeInsets.only(left: 13.0, right: 13.0),
                 child: SignInButton(
                   Buttons.Facebook,
@@ -107,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
               ),
-              Padding(
+              /*Padding(
                 padding: const EdgeInsets.only(left: 13.0, right: 13.0),
                 child: SignInButton(
                   Buttons.Twitter,
