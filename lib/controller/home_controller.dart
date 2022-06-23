@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -92,25 +93,27 @@ class HomeController extends GetxController {
 
   Future<List<KetitikModel>> getMyFeedData() async {
     resetData();
+    getDeviceData();
 
     list.value = (await _apiService.getFeedArticles(
         filter: "feeds",
         pageNumber: pageNumber.value.toString(),
         deviceId: deviceId))!;
-    pageNumber.value = pageNumber.value + 1;
+    //pageNumber.value = pageNumber.value + 1;
 
     return list.value;
   }
 
   Future<List<KetitikModel>> getTopStoriesData() async {
     resetData();
-    //final SharedPreferences prefs = await SharedPreferences.getInstance();
+    getDeviceData();
+
     list.value = (await _apiService.getTopArticles(
         filter: "top",
         pageNumber: pageNumber.value.toString(),
         deviceId: deviceId))!;
 
-    pageNumber.value = pageNumber.value + 1;
+    //pageNumber.value = pageNumber.value + 1;
 
     print("ListData Top $pageNumber ${list.value.length}");
 
@@ -135,13 +138,13 @@ class HomeController extends GetxController {
 
   Future<List<KetitikModel>> getTrendingData() async {
     resetData();
-
+    getDeviceData();
     list.value = (await _apiService.gettrendingArticles(
         filter: "trending",
         pageNumber: pageNumber.value.toString(),
         deviceId: deviceId))!;
 
-    pageNumber.value = pageNumber.value + 1;
+    // pageNumber.value = pageNumber.value + 1;
 
     print("ListData Trending $pageNumber ${list.value.length}");
 
@@ -149,20 +152,24 @@ class HomeController extends GetxController {
   }
 
   Future<List<KetitikModel>> getUpdatedList() async {
-    List<KetitikModel> newsUpdated = shuffle(list.value);
-    return newsUpdated;
+    //List<KetitikModel> newsUpdated = shuffle(list.value);
+    return list.value;
   }
 
   Future<List<KetitikModel>> getAllNewsData() async {
     resetData();
+    getDeviceData();
 
-    list.value = (await _apiService.getAllArticles(
-        filter: "allNews",
-        pageNumber: pageNumber.value.toString(),
-        deviceId: deviceId))!;
+    Timer(Duration(seconds: 1), () async {
+      list.value = (await _apiService.getAllArticles(
+          filter: "allNews",
+          pageNumber: pageNumber.value.toString(),
+          deviceId: deviceId))!;
 
-    pageNumber.value = pageNumber.value + 1;
-    print("ListData All deviceToken $deviceId");
+      // pageNumber.value = pageNumber.value + 1;
+      print("Device Id :: $deviceId");
+      print("ListData All deviceToken $deviceId");
+    });
 
     return list.value;
   }
@@ -171,6 +178,9 @@ class HomeController extends GetxController {
     indexCurrent.value = indexCurrentt;
     List<KetitikModel> moreList = <KetitikModel>[];
 
+    pageNumber.value = pageNumber.value + 1;
+
+    print("ListData Pagination Index ${pageNumber.value.toString()}");
     moreList = (await _apiService.getAllArticles(
         filter: filter.value,
         pageNumber: pageNumber.value.toString(),
@@ -179,7 +189,7 @@ class HomeController extends GetxController {
 
     if (moreList.isEmpty) {
     } else {
-      pageNumber.value = pageNumber.value + 1;
+      //pageNumber.value = pageNumber.value + 1;
       list.addAll(moreList);
       print("ListData More $pageNumber ${moreList.length}");
     }
@@ -208,6 +218,6 @@ class HomeController extends GetxController {
     super.onInit();
     getDeviceData();
     onTapVisibilty();
-    // getAllNewsData();
+    getAllNewsData();
   }
 }

@@ -91,9 +91,9 @@ class HomePageState extends State<MyHomePage> {
       GlobalKey(debugLabel: "Main Navigator");
   @override
   void initState() {
+    getDeviceIdData();
     var initialzationSettingsAndroid =
         const AndroidInitializationSettings('@mipmap/ic_ketitiknew');
-
     var initializationSettings =
         InitializationSettings(android: initialzationSettingsAndroid);
     flutterLocalNotificationsPlugin.initialize(initializationSettings,
@@ -104,14 +104,9 @@ class HomePageState extends State<MyHomePage> {
     homeController.getDeviceData();
     homeController.getTheInfographicData();
     homeController.getLoggedinStatus();
-    homeController.getAllNewsData();
-    getDeviceIdData();
-    getUserTutorial();
-    /* if (widget.foo == "" || widget.foo == "abc" || widget.foo == null) {
-    } else {
-      //navigateToNotification();
-    }*/
+    //homeController.getAllNewsData();
 
+    getUserTutorial();
     super.initState();
   }
 
@@ -455,6 +450,7 @@ class HomePageState extends State<MyHomePage> {
   }
 
   fullCourosolView(KetitikModel article, int index) {
+    print("Index ::$index  :: Title ${article.title.toString()}");
     homeController.isLiked.value = false;
     String withUrl = "";
     String image = article.image.toString();
